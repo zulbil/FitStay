@@ -2,7 +2,7 @@
 
 ## Overview
 
-CoachBnB is a full-stack web application that connects fitness professionals with clients seeking personal training services. Built as an Airbnb-style marketplace, the platform allows users to search and book fitness coaches based on location, specialty, and preferences, while enabling coaches to showcase their services and connect with potential clients. The application features a modern, responsive design with comprehensive search and filtering capabilities, user profiles, reviews, and inquiry systems.
+CoachBnB is a comprehensive full-stack fitness coaching marketplace that connects certified fitness professionals with clients seeking personal training services. Built as an Airbnb-style platform, it features a robust database of 40+ professional coaches with multiple photos, detailed bios, client testimonials, and location-based services. The platform includes Replit authentication, Google Maps integration for location-based coach discovery, advanced filtering with AND logic for specialties, and both virtual and in-person training options.
 
 ## User Preferences
 
@@ -17,7 +17,7 @@ The client-side application is built using React with TypeScript, utilizing the 
 The server is built using Express.js with TypeScript, following a REST API architecture. The application uses a layered approach with route handlers in the routes file and a storage abstraction layer that currently implements in-memory storage but is designed to be easily replaceable with database implementations. The server handles API endpoints for coaches, inquiries, reviews, and filtering operations.
 
 ### Data Storage Solutions
-The application uses Drizzle ORM configured for PostgreSQL as the primary database solution, with schemas defined for users, coaches, specialties, reviews, and inquiries. Currently, a memory-based storage implementation is used for development, but the architecture supports easy migration to PostgreSQL production databases. The database schema supports complex relationships between users and coaches, specialty categorization, and review/inquiry systems.
+The application uses PostgreSQL with Drizzle ORM as the primary database solution, featuring comprehensive schemas for users, coaches, specialties, reviews, and inquiries. The platform includes a rich dataset of 40+ professional coaches with detailed profiles, multiple high-quality photos, authentic client testimonials, and location data for Google Maps integration. Database includes specialty filtering with AND logic, user authentication storage, and comprehensive review systems.
 
 ### Component System
 The UI is built using a comprehensive component library based on Radix UI primitives, providing consistent styling and behavior across the application. Components include form elements, navigation components, cards, modals, and specialized components like coach cards and search bars. The styling system uses Tailwind CSS with a custom design system that mirrors Airbnb's visual design language.
@@ -59,4 +59,31 @@ Input validation is handled using Zod schemas integrated with Drizzle ORM for ty
 - **PostgreSQL**: Primary database system with full-text search and JSON support capabilities
 - **Connect PG Simple**: PostgreSQL session store for Express sessions (prepared for authentication)
 
-The architecture is designed to be production-ready and scalable, with clear separation of concerns and modern web development best practices throughout the stack.
+## Recent Updates (January 2025)
+
+### Authentication & User Management
+- Implemented complete Replit authentication system with session management
+- Added user profiles with role-based access (USER/COACH)
+- Created landing page for non-authenticated users
+- Updated navbar with authentication states and user profile display
+
+### Location & Maps Integration
+- Integrated Google Maps JavaScript API with interactive markers
+- Added location-based coach discovery and filtering
+- Implemented map/list view toggle in search interface
+- Added address and coordinate data for 30+ coaches with physical locations
+
+### Enhanced Coach Database
+- Expanded from 6 to 40+ professional coaches with diverse specialties
+- Added multiple high-quality photos (2-3 per coach) for visual appeal
+- Created comprehensive coach bios with certifications and experience
+- Implemented authentic client testimonials and review system
+- Added pricing tiers ranging from $65-125/hour based on expertise level
+
+### Advanced Filtering System
+- Changed specialty filtering from OR to AND logic (coaches must have ALL selected specialties)
+- Improved filter state management with proper cleanup
+- Enhanced search functionality with location-based filtering
+- Added virtual vs in-person session filtering
+
+The architecture is designed to be production-ready and scalable, with clear separation of concerns, comprehensive authentication, and modern web development best practices throughout the stack.
