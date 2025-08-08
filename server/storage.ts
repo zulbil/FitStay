@@ -16,10 +16,15 @@ export interface IStorage {
   getCoachBySlug(slug: string): Promise<Coach | undefined>;
   getCoaches(filters?: {
     city?: string;
+    zipCode?: string;
+    searchLat?: number;
+    searchLng?: number;
+    radius?: number;
     specialties?: string[];
     minPrice?: number;
     maxPrice?: number;
     virtualOnly?: boolean;
+    sortBy?: string;
     limit?: number;
     offset?: number;
   }): Promise<{ coaches: Coach[]; total: number }>;
@@ -995,6 +1000,19 @@ export class MemStorage implements IStorage {
     }
   }
 
+  // Helper function to calculate distance between two points (Haversine formula)
+  private calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+    const R = 3959; // Earth's radius in miles
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c; // Distance in miles
+  }
+
   async getCoach(id: string): Promise<Coach | undefined> {
     return this.coaches.get(id);
   }
@@ -1005,6 +1023,10 @@ export class MemStorage implements IStorage {
 
   async getCoaches(filters: {
     city?: string;
+    zipCode?: string;
+    searchLat?: number;
+    searchLng?: number;
+    radius?: number;
     specialties?: string[];
     minPrice?: number;
     maxPrice?: number;
@@ -1015,7 +1037,21 @@ export class MemStorage implements IStorage {
   } = {}): Promise<{ coaches: Coach[]; total: number }> {
     let coaches = Array.from(this.coaches.values());
 
-    // Apply filters
+    // Apply location-based filtering
+    if (filters.searchLat && filters.searchLng && filters.radius) {
+      coaches = coaches.filter(coach => {
+        if (!coach.lat || !coach.lng) return false;
+        const distance = this.calculateDistance(
+          filters.searchLat!, 
+          filters.searchLng!, 
+          coach.lat, 
+          coach.lng
+        );
+        return distance <= filters.radius!;
+      });
+    }
+
+    // Apply city filter
     if (filters.city) {
       coaches = coaches.filter(coach => 
         coach.city.toLowerCase().includes(filters.city!.toLowerCase())

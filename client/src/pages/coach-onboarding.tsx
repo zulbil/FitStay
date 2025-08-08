@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import { X, Upload, MapPin, Instagram, Globe, Check } from "lucide-react";
 import type { CoachApplication } from "@shared/schema";
 
@@ -35,6 +36,10 @@ export default function CoachOnboarding() {
   const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>([]);
   const [location, setLocation] = useState("");
   const [address, setAddress] = useState("");
+  const [city, setCity] = useState("");
+  const [state, setState] = useState("");
+  const [zipCode, setZipCode] = useState("");
+  const [fullAddress, setFullAddress] = useState("");
   const [instagramUrl, setInstagramUrl] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState("");
   const [profilePhoto, setProfilePhoto] = useState("");
@@ -153,8 +158,12 @@ export default function CoachOnboarding() {
       pricePerHour: parseInt(pricePerHour),
       virtualOnly,
       specialties: selectedSpecialties,
-      location: location.trim(),
+      city: city.trim(),
+      state: state.trim(),
+      zipCode: zipCode.trim(),
       address: address.trim(),
+      fullAddress: fullAddress.trim(),
+      location: location.trim(), // For backward compatibility
       instagramUrl: instagramUrl.trim(),
       websiteUrl: websiteUrl.trim(),
       profilePhoto: profilePhoto.trim(),
@@ -325,17 +334,33 @@ export default function CoachOnboarding() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <Label htmlFor="location">City, State</Label>
-                  <Input
-                    id="location"
-                    placeholder="e.g. Los Angeles, CA"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
+                  <Label htmlFor="city-state">Primary Location *</Label>
+                  <AddressAutocomplete
+                    value={fullAddress}
+                    onChange={(value, addressData) => {
+                      setFullAddress(value);
+                      if (addressData) {
+                        setCity(addressData.city);
+                        setState(addressData.stateCode);
+                        setZipCode(addressData.zipCode);
+                        setLocation(`${addressData.city}, ${addressData.stateCode}`);
+                      }
+                    }}
+                    onAddressSelected={(addressData) => {
+                      setCity(addressData.city);
+                      setState(addressData.stateCode);
+                      setZipCode(addressData.zipCode);
+                      setLocation(`${addressData.city}, ${addressData.stateCode}`);
+                      setFullAddress(`${addressData.city}, ${addressData.stateCode} ${addressData.zipCode}`);
+                    }}
+                    placeholder="Enter city, state, or ZIP code..."
+                    className="w-full"
                   />
+                  <p className="text-sm text-gray-500 mt-1">Start typing to search for your city and state</p>
                 </div>
 
                 <div>
-                  <Label htmlFor="address">Full Address (optional)</Label>
+                  <Label htmlFor="address">Street Address (optional)</Label>
                   <Input
                     id="address"
                     placeholder="Street address for in-person sessions"
@@ -344,6 +369,14 @@ export default function CoachOnboarding() {
                   />
                   <p className="text-sm text-gray-500 mt-1">This helps clients find you for in-person training</p>
                 </div>
+
+                {city && state && (
+                  <div className="bg-green-50 p-3 rounded-md">
+                    <p className="text-sm text-green-700">
+                      <strong>Selected Location:</strong> {city}, {state} {zipCode}
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}

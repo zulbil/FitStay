@@ -5,7 +5,7 @@ import { Star } from "lucide-react";
 import type { Coach } from "@shared/schema";
 
 interface CoachCardProps {
-  coach: Coach;
+  coach: Coach & { distance?: number };
 }
 
 export default function CoachCard({ coach }: CoachCardProps) {
@@ -25,7 +25,14 @@ export default function CoachCard({ coach }: CoachCardProps) {
               <span className="text-sm text-neutral-600 ml-1">{(coach.ratingAvg || 0).toFixed(1)}</span>
             </div>
           </div>
-          <p className="text-neutral-600 text-sm mb-3">{coach.city}, {coach.country}</p>
+          <p className="text-neutral-600 text-sm mb-3">
+            {coach.city}, {coach.state || coach.country}
+            {coach.distance && (
+              <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+                {coach.distance} mi away
+              </span>
+            )}
+          </p>
           <div className="flex flex-wrap gap-2 mb-4">
             {coach.specialties.slice(0, 2).map((specialty) => (
               <Badge 

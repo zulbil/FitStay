@@ -4,9 +4,11 @@ import { useLocation } from "wouter";
 import FilterPanel from "@/components/filter-panel";
 import CoachCard from "@/components/coach-card";
 import { GoogleMap } from "@/components/google-map";
+import { LocationSearch } from "@/components/LocationSearch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Map, List } from "lucide-react";
+import { Map, List, MapPin } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import type { Coach } from "@shared/schema";
 
 export default function Search() {
@@ -15,6 +17,10 @@ export default function Search() {
   
   const [filters, setFilters] = useState({
     location: searchParams.get("location") || "",
+    zipCode: searchParams.get("zipCode") || "",
+    lat: searchParams.get("lat") ? parseFloat(searchParams.get("lat")!) : undefined,
+    lng: searchParams.get("lng") ? parseFloat(searchParams.get("lng")!) : undefined,
+    radius: searchParams.get("radius") ? parseInt(searchParams.get("radius")!) : 100,
     specialty: searchParams.get("specialty") || "",
     minPrice: searchParams.get("minPrice") ? parseInt(searchParams.get("minPrice")!) : undefined,
     maxPrice: searchParams.get("maxPrice") ? parseInt(searchParams.get("maxPrice")!) : undefined,
@@ -23,10 +29,29 @@ export default function Search() {
     offset: 0,
   });
 
+  const [locationText, setLocationText] = useState(searchParams.get("locationText") || "");
+
   const [sortBy, setSortBy] = useState("recommended");
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
 
-  const { data: coachesData, isLoading, error } = useQuery<{ coaches: Coach[]; total: number }>({
+  const handleLocationSearch = (searchData: {
+    zipCode?: string;
+    lat?: number;
+    lng?: number;
+    radius?: number;
+    locationText?: string;
+  }) => {
+    setFilters(prev => ({
+      ...prev,
+      zipCode: searchData.zipCode || "",
+      lat: searchData.lat,
+      lng: searchData.lng,
+      radius: searchData.radius || 100,
+    }));
+    setLocationText(searchData.locationText || "");
+  };
+
+  const { data: coachesData, isLoading, error } = useQuery<{ coaches: (Coach & { distance?: number })[]; total: number }>({
     queryKey: ["/api/coaches", filters, sortBy],
     queryFn: async () => {
       const params = new URLSearchParams();
@@ -108,7 +133,23 @@ export default function Search() {
       <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Filters Sidebar */}
-          <div className="lg:w-1/4">
+          <div className="lg:w-1/4 space-y-6">
+            {/* Location Search */}
+            <div className="bg-white p-4 rounded-lg border border-neutral-200">
+              <LocationSearch 
+                onLocationSearch={handleLocationSearch}
+                className="w-full"
+              />
+              {locationText && (
+                <div className="mt-3 flex items-center gap-2">
+                  <Badge variant="secondary" className="flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    {locationText}
+                  </Badge>
+                </div>
+              )}
+            </div>
+            
             <FilterPanel 
               onFiltersChange={handleFiltersChange}
               initialFilters={filters}
@@ -120,7 +161,8 @@ export default function Search() {
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-neutral-800">
                 {isLoading ? "Loading..." : `${coachesData?.total || 0} coaches found`}
-                {filters.location && ` in ${filters.location}`}
+                {locationText && ` near ${locationText}`}
+                {filters.location && !locationText && ` in ${filters.location}`}
               </h2>
               <div className="flex items-center gap-4">
                 <div className="flex items-center border border-neutral-200 rounded-lg p-1">
@@ -147,6 +189,7 @@ export default function Search() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="recommended">Sort by: Recommended</SelectItem>
+                    {locationText && <SelectItem value="distance">Distance: Nearest First</SelectItem>}
                     <SelectItem value="price-low">Price: Low to High</SelectItem>
                     <SelectItem value="price-high">Price: High to Low</SelectItem>
                     <SelectItem value="rating">Rating: Highest</SelectItem>
@@ -175,15 +218,22 @@ export default function Search() {
                 <h3 className="text-xl font-semibold text-neutral-800 mb-4">No coaches found</h3>
                 <p className="text-neutral-600 mb-6">Try adjusting your filters or search criteria.</p>
                 <Button 
-                  onClick={() => setFilters({
-                    location: "",
-                    specialty: "",
-                    minPrice: undefined,
-                    maxPrice: undefined,
-                    virtualOnly: undefined,
-                    limit: 12, 
-                    offset: 0
-                  })}
+                  onClick={() => {
+                    setFilters({
+                      location: "",
+                      zipCode: "",
+                      lat: undefined,
+                      lng: undefined,
+                      radius: 100,
+                      specialty: "",
+                      minPrice: undefined,
+                      maxPrice: undefined,
+                      virtualOnly: undefined,
+                      limit: 12, 
+                      offset: 0
+                    });
+                    setLocationText("");
+                  }}
                   variant="outline"
                 >
                   Clear all filters

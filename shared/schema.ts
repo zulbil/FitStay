@@ -34,8 +34,11 @@ export const coaches = pgTable("coaches", {
   headline: text("headline").notNull(),
   bio: text("bio").notNull(),
   city: text("city").notNull(),
-  country: text("country").notNull(),
-  address: text("address"), // Full address for Google Maps
+  state: text("state").notNull().default("CA"), // US State (e.g., "CA", "NY")
+  zipCode: text("zip_code").notNull().default("90210"), // US ZIP code (e.g., "90210", "10001")
+  country: text("country").notNull().default("US"),
+  address: text("address"), // Full street address
+  fullAddress: text("full_address"), // Complete formatted address
   lat: real("lat"),
   lng: real("lng"),
   specialties: text("specialties").array().notNull().default([]),
@@ -72,6 +75,17 @@ export const inquiries = pgTable("inquiries", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// ZIP code locations table for search functionality
+export const zipCodes = pgTable("zip_codes", {
+  zipCode: text("zip_code").primaryKey(),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  stateCode: text("state_code").notNull(), // e.g., "CA", "NY"
+  county: text("county"),
+  lat: real("lat").notNull(),
+  lng: real("lng").notNull(),
+});
+
 export const coachApplications = pgTable("coach_applications", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id").references(() => users.id).notNull(),
@@ -88,9 +102,13 @@ export const coachApplications = pgTable("coach_applications", {
   virtualOnly: boolean("virtual_only").default(false),
   specialties: varchar("specialties").array().default([]),
   
-  // Location
-  location: varchar("location"),
-  address: varchar("address"),
+  // Location - Updated for US addresses
+  city: text("city").notNull().default("TBD"),
+  state: text("state").notNull().default("CA"),
+  zipCode: text("zip_code").notNull().default("90210"),
+  address: text("address"), // Street address
+  fullAddress: text("full_address"), // Complete formatted address
+  location: varchar("location"), // Legacy field for display compatibility
   latitude: real("latitude"),
   longitude: real("longitude"),
   

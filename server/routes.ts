@@ -21,11 +21,56 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all coaches with optional filters
+  // Helper function to calculate distance between two points (Haversine formula)
+  function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+    const R = 3959; // Earth's radius in miles
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLng/2) * Math.sin(dLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c; // Distance in miles
+  }
+
+  // GET /api/zip-lookup/:zipCode - Lookup ZIP code coordinates for search
+  app.get("/api/zip-lookup/:zipCode", async (req, res) => {
+    try {
+      const { zipCode } = req.params;
+      
+      // Use Zippopotam.us API for free ZIP code lookup
+      const response = await fetch(`https://api.zippopotam.us/us/${zipCode}`);
+      if (!response.ok) {
+        return res.status(404).json({ error: "ZIP code not found" });
+      }
+      
+      const data = await response.json();
+      const zipData = {
+        zipCode: data['post code'],
+        city: data.places[0]['place name'],
+        state: data.places[0]['state'],
+        stateCode: data.places[0]['state abbreviation'],
+        lat: parseFloat(data.places[0]['latitude']),
+        lng: parseFloat(data.places[0]['longitude']),
+      };
+      
+      res.json(zipData);
+    } catch (error) {
+      console.error("ZIP lookup error:", error);
+      res.status(500).json({ error: "Failed to lookup ZIP code" });
+    }
+  });
+
+  // Get all coaches with optional filters and location-based search
   app.get("/api/coaches", async (req, res) => {
     try {
       const { 
         city, 
+        zipCode,
+        lat,
+        lng,
+        radius = "100", // Default 100 mile radius
         specialties, 
         minPrice, 
         maxPrice, 
@@ -40,6 +85,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
         offset: parseInt(offset as string)
       };
 
+      // Handle location-based filtering
+      if (zipCode || (lat && lng)) {
+        let searchLat, searchLng;
+        
+        if (zipCode) {
+          // Lookup ZIP code coordinates
+          try {
+            const zipResponse = await fetch(`https://api.zippopotam.us/us/${zipCode}`);
+            if (zipResponse.ok) {
+              const zipData = await zipResponse.json();
+              searchLat = parseFloat(zipData.places[0]['latitude']);
+              searchLng = parseFloat(zipData.places[0]['longitude']);
+            }
+          } catch (error) {
+            console.error("ZIP lookup error:", error);
+          }
+        } else if (lat && lng) {
+          searchLat = parseFloat(lat as string);
+          searchLng = parseFloat(lng as string);
+        }
+        
+        if (searchLat && searchLng) {
+          filters.searchLat = searchLat;
+          filters.searchLng = searchLng;
+          filters.radius = parseInt(radius as string);
+        }
+      }
+
       if (city) filters.city = city as string;
       if (specialties) {
         filters.specialties = Array.isArray(specialties) 
@@ -52,8 +125,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (sortBy) filters.sortBy = sortBy as string;
 
       const result = await storage.getCoaches(filters);
+      
+      // Add distance calculation for location-based searches
+      if (filters.searchLat && filters.searchLng && result.coaches) {
+        result.coaches = result.coaches.map((coach: any) => {
+          if (coach.lat && coach.lng) {
+            const distance = calculateDistance(
+              filters.searchLat, 
+              filters.searchLng, 
+              coach.lat, 
+              coach.lng
+            );
+            return { ...coach, distance: Math.round(distance * 10) / 10 };
+          }
+          return coach;
+        });
+        
+        // Sort by distance if location search
+        if (!sortBy || sortBy === 'distance') {
+          result.coaches.sort((a: any, b: any) => (a.distance || 999) - (b.distance || 999));
+        }
+      }
+      
       res.json(result);
     } catch (error) {
+      console.error("Coaches fetch error:", error);
       res.status(500).json({ message: "Failed to fetch coaches" });
     }
   });
