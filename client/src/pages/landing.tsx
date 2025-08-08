@@ -1,19 +1,44 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import { Search } from "lucide-react";
+
+interface ZipCodeData {
+  zipCode: string;
+  city: string;
+  state: string;
+  stateCode: string;
+  lat: number;
+  lng: number;
+  fullAddress?: string;
+}
 
 export default function Landing() {
   const [, setLocation] = useLocation();
   const [searchLocation, setSearchLocation] = useState("");
+  const [selectedLocationData, setSelectedLocationData] = useState<ZipCodeData | null>(null);
+
+  const handleAddressSelected = (addressData: ZipCodeData) => {
+    setSelectedLocationData(addressData);
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     const params = new URLSearchParams();
-    if (searchLocation) {
+    
+    if (selectedLocationData) {
+      // Use the selected address data for more precise search
+      params.set("lat", selectedLocationData.lat.toString());
+      params.set("lng", selectedLocationData.lng.toString());
+      params.set("zipCode", selectedLocationData.zipCode);
+      params.set("locationText", selectedLocationData.fullAddress || `${selectedLocationData.city}, ${selectedLocationData.stateCode} ${selectedLocationData.zipCode}`);
+      params.set("radius", "50"); // Default 50 mile radius
+    } else if (searchLocation) {
+      // Fallback to basic location search
       params.set("location", searchLocation);
     }
+    
     setLocation(`/search?${params.toString()}`);
   };
 
@@ -39,14 +64,18 @@ export default function Landing() {
           {/* Search Form */}
           <form onSubmit={handleSearch} className="max-w-lg mx-auto">
             <div className="flex gap-2">
-              <div className="flex-1 relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400 h-5 w-5" />
-                <Input
-                  type="text"
-                  placeholder="Enter city or zip code"
+              <div className="flex-1">
+                <AddressAutocomplete
                   value={searchLocation}
-                  onChange={(e) => setSearchLocation(e.target.value)}
-                  className="pl-10 py-3 text-base"
+                  onChange={(value, addressData) => {
+                    setSearchLocation(value);
+                    if (addressData) {
+                      setSelectedLocationData(addressData);
+                    }
+                  }}
+                  onAddressSelected={handleAddressSelected}
+                  placeholder="Enter city, state or zip code"
+                  className="w-full"
                 />
               </div>
               <Button type="submit" size="lg" className="px-8">
