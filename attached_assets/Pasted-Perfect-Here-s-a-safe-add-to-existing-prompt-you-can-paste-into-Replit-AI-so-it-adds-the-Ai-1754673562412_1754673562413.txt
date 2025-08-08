@@ -1,0 +1,131 @@
+Perfect. Here’s a **safe “add-to-existing” prompt** you can paste into Replit AI so it *adds* the Airbnb-style location search **without overwriting your project**.
+
+---
+
+# Master Incremental Prompt (paste this verbatim)
+
+**Prompt:**
+“**Do not** rebuild or replace my project. I already have a Next.js 14 + TypeScript + App Router + Tailwind + Prisma app called *CoachBnB*.
+**Goal:** Add an Airbnb-style **location autocomplete search** and **radius filtering**.
+**Constraints:**
+
+* Only add new files or minimally edit existing ones.
+* Keep existing components, routes, and styles.
+* Keep Prisma schema unchanged.
+* Explain each change in a short summary at the end.
+
+## What to add
+
+### 1) Geocoding API route
+
+Create: **`/app/api/places/route.ts`** (Edge-compatible)
+
+* GET `?q=term&limit=8`
+* Read env: `GEOCODER_PROVIDER=maptiler|nominatim` (default maptiler if key present), `MAPTILER_API_KEY`
+* Call MapTiler Geocoding (`https://api.maptiler.com/geocoding/{q}.json?key=KEY&limit=...`) or fallback to Nominatim (`https://nominatim.openstreetmap.org/search?...`)
+* Normalize to:
+
+```ts
+export type PlaceResult = {
+  id: string;
+  text: string; // e.g. "Houston, Texas, United States"
+  placeType: 'place'|'region'|'country'|'poi';
+  center: { lat: number; lng: number };
+  bbox?: [minLng, minLat, maxLng, maxLat];
+}
+```
+
+* Cache results for \~60s.
+
+### 2) LocationSearch component
+
+Create: **`/app/(components)/search/LocationSearch.tsx`** (client)
+
+* Controlled input with debounced (300ms) fetch to `/api/places`.
+* Keyboard nav (↑/↓), Enter to select, Esc to close. Click-outside to close.
+* Shows “Recent searches” (localStorage) when focused and empty.
+* Props:
+
+```ts
+type Props = {
+  initialValue?: string;
+  onSelect: (place: PlaceResult) => void;
+}
+```
+
+* Accessibility: ARIA combobox roles for input/listbox/options.
+* Airbnb-like styling: rounded pill, subtle shadow, list items w/ icon + secondary text.
+
+### 3) SearchBar integration (minimal edit)
+
+Update existing **SearchBar** (or create **`/app/(components)/search/SearchBar.tsx`** if missing):
+
+* Include `LocationSearch` + specialty select + price inputs (do not remove existing).
+* On select:
+
+  * Navigate to `/search` with params:
+
+    * `q` (label), `lat`, `lng`, `radiusKm=50` (default), optional `bbox`
+    * preserve existing params (specialty/min/max/sort)
+  * Use `useRouter().push()`.
+
+### 4) Search page handler
+
+Edit **`/app/search/page.tsx`** (server):
+
+* Read `lat/lng/radiusKm` from `searchParams`.
+* If coords exist:
+
+  * Pre-filter by bounding box (quick) then refine with **Haversine distance** and keep `<= radiusKm`.
+* Combine with existing specialty/price filters and pagination.
+* Keep SSR for SEO.
+
+### 5) Utilities
+
+Create **`/lib/geocoding.ts`** with provider functions and a `searchPlaces(q)` that hits our API.
+Create **`/lib/geo.ts`**:
+
+```ts
+export function distanceKm(a:{lat:number;lng:number}, b:{lat:number;lng:number}): number
+export function bboxAround(lat:number,lng:number,radiusKm:number): [minLng,minLat,maxLng,maxLat]
+```
+
+### 6) ENV & README
+
+* Update README: “Location Search & Geocoding” setup.
+* Add `.env.local` examples:
+
+```
+GEOCODER_PROVIDER=maptiler
+MAPTILER_API_KEY=YOUR_KEY
+```
+
+## Acceptance tests
+
+* Typing “Hou” suggests “Houston, Texas, United States”.
+* Selecting navigates to `/search?q=Houston%2C%20Texas&lat=29.7604&lng=-95.3698&radiusKm=50`.
+* `/search` lists coaches within 50km and respects existing specialty/price filters.
+* Works if `MAPTILER_API_KEY` missing (falls back to Nominatim).
+* Mobile: input expands and list items are tap-friendly.
+
+**Remember: Do not delete or overwrite existing files. Add new files and only minimally modify SearchBar and search page. Provide a short summary of what changed.**”
+
+---
+
+## Optional “Micro-Prompts” (use one at a time, super safe)
+
+1. **Places API Route only**
+   “Create `/app/api/places/route.ts` as specified above. Do not touch other files.”
+
+2. **LocationSearch component only**
+   “Create `/app/(components)/search/LocationSearch.tsx` as specified. Do not modify other files.”
+
+3. **Wire into SearchBar**
+   “Update my existing SearchBar to import and use `LocationSearch`. On select, push to `/search` with lat/lng/radius and preserve existing params. Only minimal edits.”
+
+4. **Search page radius filter**
+   “Modify `/app/search/page.tsx` to support `lat/lng/radiusKm` with bbox prefilter + Haversine refinement. Keep current specialty/price filters and pagination intact.”
+
+---
+
+If you hit any merge conflicts or weird diffs, send me the file and I’ll give you a minimal patch.
