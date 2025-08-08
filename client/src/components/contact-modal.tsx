@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/useAuth";
 import type { Coach } from "@shared/schema";
 
 interface ContactModalProps {
@@ -21,6 +22,7 @@ export default function ContactModal({ coach, children }: ContactModalProps) {
   const [message, setMessage] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { isAuthenticated } = useAuth();
 
   const inquiryMutation = useMutation({
     mutationFn: async (data: { name: string; email: string; message: string; coachId: string }) => {
@@ -64,9 +66,18 @@ export default function ContactModal({ coach, children }: ContactModalProps) {
     });
   };
 
+  const handleTriggerClick = (e: React.MouseEvent) => {
+    if (!isAuthenticated) {
+      e.preventDefault();
+      window.location.href = "/api/login";
+      return;
+    }
+    setOpen(true);
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger asChild onClick={handleTriggerClick}>
         {children}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">

@@ -18,24 +18,18 @@ function Router() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Only show navbar on authenticated routes */}
-      {isAuthenticated && <Navbar />}
+      {/* Show navbar on all pages */}
+      <Navbar />
       <main className="flex-1">
         <Switch>
-          {isLoading || !isAuthenticated ? (
-            <Route path="/" component={Landing} />
-          ) : (
-            <>
-              <Route path="/" component={Home} />
-            </>
-          )}
+          <Route path="/" component={isAuthenticated ? Home : Landing} />
           <Route path="/search" component={Search} />
           <Route path="/coach/:slug" component={CoachProfile} />
           <Route path="/for-coaches" component={ForCoaches} />
           <Route component={NotFound} />
         </Switch>
       </main>
-      {isAuthenticated && <Footer />}
+      <Footer />
     </div>
   );
 }

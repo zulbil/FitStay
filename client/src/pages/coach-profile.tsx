@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import ContactModal from "@/components/contact-modal";
+import { useAuth } from "@/hooks/useAuth";
 import type { Coach, Review } from "@shared/schema";
 
 export default function CoachProfile() {
