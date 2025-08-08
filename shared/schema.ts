@@ -72,6 +72,43 @@ export const inquiries = pgTable("inquiries", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+export const coachApplications = pgTable("coach_applications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").references(() => users.id).notNull(),
+  status: varchar("status", { enum: ["pending", "approved", "rejected"] }).default("pending"),
+  
+  // Basic Info
+  headline: varchar("headline").notNull(),
+  bio: text("bio").notNull(),
+  experience: text("experience").notNull(),
+  certifications: text("certifications").array().default([]),
+  
+  // Pricing & Services  
+  pricePerHour: integer("price_per_hour").notNull(),
+  virtualOnly: boolean("virtual_only").default(false),
+  specialties: varchar("specialties").array().default([]),
+  
+  // Location
+  location: varchar("location"),
+  address: varchar("address"),
+  latitude: real("latitude"),
+  longitude: real("longitude"),
+  
+  // Profile Photos (URLs)
+  profilePhoto: varchar("profile_photo"),
+  additionalPhotos: varchar("additional_photos").array().default([]),
+  
+  // Social Media
+  instagramUrl: varchar("instagram_url"),
+  websiteUrl: varchar("website_url"),
+  
+  // Admin Notes
+  adminNotes: text("admin_notes"),
+  
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
 // Insert schemas
 export const insertUserSchema = createInsertSchema(users).omit({
   id: true,
@@ -98,6 +135,12 @@ export const insertInquirySchema = createInsertSchema(inquiries).omit({
   createdAt: true,
 });
 
+export const insertCoachApplicationSchema = createInsertSchema(coachApplications).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -114,3 +157,6 @@ export type InsertReview = z.infer<typeof insertReviewSchema>;
 
 export type Inquiry = typeof inquiries.$inferSelect;
 export type InsertInquiry = z.infer<typeof insertInquirySchema>;
+
+export type CoachApplication = typeof coachApplications.$inferSelect;
+export type InsertCoachApplication = z.infer<typeof insertCoachApplicationSchema>;

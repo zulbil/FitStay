@@ -33,7 +33,11 @@ export default function Navbar() {
           </div>
 
           <div className="flex items-center space-x-4">
-            <Button variant="ghost" className="text-neutral-600 hover:text-primary">
+            <Button 
+              variant="ghost" 
+              className="text-neutral-600 hover:text-primary"
+              onClick={() => window.location.href = "/become-a-coach"}
+            >
               Become a Coach
             </Button>
             {isAuthenticated ? (

@@ -16,7 +16,10 @@ export default function ForCoaches() {
             Join thousands of fitness professionals who are building successful careers through CoachBnB. 
             Connect with motivated clients and increase your income.
           </p>
-          <Button className="bg-white text-primary hover:bg-gray-100 font-semibold px-8 py-4 rounded-xl text-lg">
+          <Button 
+            className="bg-white text-primary hover:bg-gray-100 font-semibold px-8 py-4 rounded-xl text-lg"
+            onClick={() => window.location.href = "/become-a-coach"}
+          >
             Start Your Coach Profile
           </Button>
         </div>
@@ -145,7 +148,11 @@ export default function ForCoaches() {
                   ))}
                 </ul>
                 
-                <Button variant="outline" className="w-full py-3">
+                <Button 
+                  variant="outline" 
+                  className="w-full py-3"
+                  onClick={() => window.location.href = "/become-a-coach"}
+                >
                   Get Started Free
                 </Button>
               </CardContent>
@@ -182,7 +189,10 @@ export default function ForCoaches() {
                   ))}
                 </ul>
                 
-                <Button className="w-full py-3 bg-primary hover:bg-red-600">
+                <Button 
+                  className="w-full py-3 bg-primary hover:bg-red-600"
+                  onClick={() => window.location.href = "/become-a-coach"}
+                >
                   Start Pro Trial
                 </Button>
               </CardContent>
@@ -200,7 +210,10 @@ export default function ForCoaches() {
             Start your free profile today and begin connecting with your ideal clients.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button className="bg-primary hover:bg-red-600 font-semibold px-8 py-4 rounded-xl text-lg">
+            <Button 
+              className="bg-primary hover:bg-red-600 font-semibold px-8 py-4 rounded-xl text-lg"
+              onClick={() => window.location.href = "/become-a-coach"}
+            >
               Create Your Profile
             </Button>
             <Button variant="outline" className="border-white text-white hover:bg-white hover:text-neutral-800 font-semibold px-8 py-4 rounded-xl text-lg">

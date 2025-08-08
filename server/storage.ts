@@ -1,5 +1,5 @@
-import { type User, type InsertUser, type UpsertUser, type Coach, type InsertCoach, type Specialty, type InsertSpecialty, type Review, type InsertReview, type Inquiry, type InsertInquiry } from "@shared/schema";
-import { users, coaches, reviews, inquiries, specialties } from "@shared/schema";
+import { type User, type InsertUser, type UpsertUser, type Coach, type InsertCoach, type Specialty, type InsertSpecialty, type Review, type InsertReview, type Inquiry, type InsertInquiry, type CoachApplication, type InsertCoachApplication } from "@shared/schema";
+import { users, coaches, reviews, inquiries, specialties, coachApplications } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
@@ -36,6 +36,11 @@ export interface IStorage {
 
   // Inquiries
   createInquiry(inquiry: InsertInquiry): Promise<Inquiry>;
+  
+  // Coach Applications
+  createCoachApplication(application: InsertCoachApplication): Promise<CoachApplication>;
+  getCoachApplicationByUserId(userId: string): Promise<CoachApplication | undefined>;
+  updateCoachApplicationStatus(id: string, status: "pending" | "approved" | "rejected"): Promise<CoachApplication | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -1247,7 +1252,27 @@ export class DatabaseStorage implements IStorage {
     const [inquiry] = await db.insert(inquiries).values(inquiryData).returning();
     return inquiry;
   }
+
+  // Coach Application methods
+  async createCoachApplication(applicationData: InsertCoachApplication): Promise<CoachApplication> {
+    const [application] = await db.insert(coachApplications).values(applicationData).returning();
+    return application;
+  }
+
+  async getCoachApplicationByUserId(userId: string): Promise<CoachApplication | undefined> {
+    const [application] = await db.select().from(coachApplications).where(eq(coachApplications.userId, userId));
+    return application || undefined;
+  }
+
+  async updateCoachApplicationStatus(id: string, status: "pending" | "approved" | "rejected"): Promise<CoachApplication | undefined> {
+    const [application] = await db
+      .update(coachApplications)
+      .set({ status, updatedAt: new Date() })
+      .where(eq(coachApplications.id, id))
+      .returning();
+    return application || undefined;
+  }
 }
 
-// Use MemStorage for now, but DatabaseStorage is ready when needed
-export const storage = new MemStorage();
+// Use DatabaseStorage for production with coach applications
+export const storage = new DatabaseStorage();
