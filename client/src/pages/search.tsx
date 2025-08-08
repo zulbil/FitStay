@@ -245,10 +245,13 @@ export default function Search() {
                   <div className="space-y-6">
                     <GoogleMap 
                       coaches={coachesData?.coaches || []}
+                      center={filters.lat && filters.lng ? { lat: filters.lat, lng: filters.lng } : undefined}
+                      zoom={filters.lat && filters.lng ? 10 : 4}
                       className="h-96 w-full rounded-lg border border-neutral-200"
                     />
                     <div className="text-sm text-neutral-600">
                       Showing {coachesData?.coaches.filter(c => c.lat && c.lng).length || 0} coaches with locations on map
+                      {locationText && ` near ${locationText}`}
                     </div>
                   </div>
                 ) : (

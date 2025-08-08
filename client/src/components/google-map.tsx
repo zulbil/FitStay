@@ -31,7 +31,7 @@ export function GoogleMap({
     // Load Google Maps script if not already loaded
     if (!window.google) {
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&callback=initMap`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${import.meta.env.VITE_GOOGLE_MAPS_API_KEY}&libraries=places&callback=initMap`;
       script.async = true;
       script.defer = true;
       
@@ -51,6 +51,14 @@ export function GoogleMap({
       updateMarkers();
     }
   }, [coaches]);
+
+  // Update map center when center prop changes
+  useEffect(() => {
+    if (mapInstanceRef.current && center) {
+      mapInstanceRef.current.setCenter(center);
+      mapInstanceRef.current.setZoom(zoom);
+    }
+  }, [center, zoom]);
 
   const initializeMap = () => {
     if (!mapRef.current) return;
