@@ -1,0 +1,150 @@
+Perfect—here’s a **copy-paste prompt** for Replit’s AI to scaffold a full **Airbnb-style fitness coach directory**. It’s written like a senior full-stack spec so the AI knows exactly what to build.
+
+---
+
+**Replit AI Prompt (paste this verbatim):**
+
+> Build a production-ready web app called **CoachBnB** — an Airbnb-style directory for booking fitness coaches by location and specialty.
+>
+> **Tech stack**
+>
+> * Next.js 14 (App Router, TypeScript, Server Actions)
+> * Tailwind CSS + Headless UI + Lucide icons
+> * Prisma ORM with SQLite for dev (easy to swap to Postgres)
+> * NextAuth.js (email magic link only; credentials for demo)
+> * Zod for input validation
+> * Vercel/Edge-friendly patterns (no server-only libs that break)
+>
+> **Design**
+>
+> * Look/feel inspired by Airbnb: clean whitespace, large search header, card grid, rounded corners, subtle shadows, generous padding, responsive.
+> * Tailwind design tokens, components, and utilities that mirror Airbnb spacing/typography.
+>
+> **Pages (App Router)**
+>
+> * `/` Home: sticky top search, hero with location/specialty/date inputs, featured coaches carousel, “popular specialties” chips, card grid of coaches with pagination.
+> * `/search` Results: left filters (location, specialty, price range, in-person/virtual), sort (rating, price, newest), responsive grid of CoachCards, server-side pagination.
+> * `/coach/[slug]` Coach profile: hero banner, avatar, name, badges (specialties), city, intro/bio, pricing tiles, availability widget (mocked), gallery, reviews list, CTA (“Contact / Book” opens modal form).
+> * `/for-coaches` Selling page for coaches: benefits, pricing tiers (Free Directory / Pro Profile), comparison table, “Get Listed” button.
+> * `/auth/*` Sign in/up screens (NextAuth).
+> * `/dashboard` (protected): for coaches—edit profile, photos, specialties, pricing, availability (mock), view inquiries.
+>
+> **Data models (Prisma)**
+>
+> ```prisma
+> model User {
+>   id        String  @id @default(cuid())
+>   email     String  @unique
+>   name      String?
+>   role      Role    @default(USER) // USER | COACH | ADMIN
+>   coach     Coach?
+>   createdAt DateTime @default(now())
+> }
+>
+> enum Role { USER COACH ADMIN }
+>
+> model Coach {
+>   id           String   @id @default(cuid())
+>   userId       String   @unique
+>   user         User     @relation(fields: [userId], references: [id])
+>   slug         String   @unique
+>   headline     String
+>   bio          String
+>   city         String
+>   country      String
+>   lat          Float?
+>   lng          Float?
+>   specialties  Specialty[] // m2m
+>   pricePerHour Int
+>   virtualOnly  Boolean   @default(false)
+>   ratingAvg    Float     @default(0)
+>   ratingCount  Int       @default(0)
+>   photos       Photo[]
+>   reviews      Review[]
+>   createdAt    DateTime  @default(now())
+>   updatedAt    DateTime  @updatedAt
+> }
+>
+> model Specialty {
+>   id      String   @id @default(cuid())
+>   name    String   @unique
+>   coaches Coach[]  @relation(references: [id])
+> }
+>
+> model Photo {
+>   id       String  @id @default(cuid())
+>   coachId  String
+>   url      String
+>   order    Int     @default(0)
+>   coach    Coach   @relation(fields: [coachId], references: [id])
+> }
+>
+> model Review {
+>   id        String  @id @default(cuid())
+>   coachId   String
+>   author    String
+>   rating    Int
+>   comment   String
+>   createdAt DateTime @default(now())
+>   coach     Coach   @relation(fields: [coachId], references: [id])
+> }
+> ```
+>
+> **Core components**
+>
+> * `Navbar` (sticky), `Footer`.
+> * `SearchBar` (location autocomplete text input, specialty select, min/max price); submits to `/search` via server action.
+> * `CoachCard`: photo, name, city, rating, specialties chips, price; entire card clickable.
+> * `FilterPanel`: collapsible on mobile; checkboxes for specialties, slider for price, switches for virtualOnly; server actions update URL params.
+> * `ProfileHeader`, `PhotoGallery`, `PricingTiles`, `ReviewList`, `ContactModal`.
+>
+> **Features**
+>
+> * Seed script: create 20 specialties and 40 demo coaches with photos from `picsum.photos` and realistic bios/prices. Random ratings/reviews.
+> * Search & filters are server-side (read from URL params) and cached; pagination with `limit/offset`.
+> * Contact/Inquiry form: posts to server action, validates with Zod, stores inquiry in SQLite and logs to console (stub for email).
+> * Simple role-based access: coaches can edit only their profile via `/dashboard`.
+> * Basic SEO: metadata per page, coach `slug`, Open Graph tags.
+>
+> **Styling details**
+>
+> * Tailwind config: rounded-2xl, shadow-md, tracking-tight, container max-w-\[1200px].
+> * Reusable UI primitives: `Badge`, `Chip`, `Button`, `Card`, `Skeleton`.
+> * Airbnb-like card hover: subtle scale and shadow.
+>
+> **Nice-to-haves (implement if quick)**
+>
+> * Debounced search in the header.
+> * “Save to favorites” (client-only, localStorage).
+> * Skeleton loaders for cards and profile sections.
+>
+> **Deliverables**
+>
+> * Fully running Next.js project with `pnpm dev` or `npm run dev`.
+> * Prisma schema + seed script (`prisma migrate dev && prisma db seed`).
+> * README with setup steps.
+> * Clear TODO comments where integrations (email, maps, payments) would go.
+>
+> After scaffolding, generate:
+>
+> 1. a README with setup instructions,
+> 2. a short “Architecture Overview” section,
+> 3. seed data script,
+> 4. example `.env.local` values for NextAuth/Prisma.
+>    Keep everything minimal, clean, and Airbnb-inspired.
+
+---
+
+### How to use it (super quick)
+
+1. Create a new Replit → **Next.js + Node** template.
+2. Open the AI/ghostwriter panel → paste the prompt above.
+3. After generation:
+
+   * `npm i` (or `pnpm i`)
+   * `npx prisma migrate dev`
+   * `npx prisma db seed`
+   * `npm run dev`
+4. Visit `http://localhost:3000`, test search/filters, tweak copy and colors.
+
+Want me to also write seed specialties (e.g., Hypertrophy, Weight Loss, Mobility, Powerlifting, Prenatal, Sports Performance, etc.) and a polished home hero headline? I can drop those in next.
