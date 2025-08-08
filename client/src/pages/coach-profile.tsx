@@ -85,10 +85,10 @@ export default function CoachProfile() {
                 <div className="flex items-center">
                   <div className="flex text-yellow-400">
                     {[...Array(5)].map((_, i) => (
-                      <Star key={i} className={`w-5 h-5 ${i < Math.floor(coach.ratingAvg) ? 'fill-current' : ''}`} />
+                      <Star key={i} className={`w-5 h-5 ${i < Math.floor(coach.ratingAvg || 0) ? 'fill-current' : ''}`} />
                     ))}
                   </div>
-                  <span className="ml-2 text-neutral-600">{coach.ratingAvg.toFixed(1)} ({coach.ratingCount} reviews)</span>
+                  <span className="ml-2 text-neutral-600">{(coach.ratingAvg || 0).toFixed(1)} ({coach.ratingCount} reviews)</span>
                 </div>
               </div>
               
@@ -164,7 +164,7 @@ export default function CoachProfile() {
                               ))}
                             </div>
                             <span className="ml-2 text-neutral-500 text-sm">
-                              {new Date(review.createdAt).toLocaleDateString()}
+                              {review.createdAt ? new Date(review.createdAt).toLocaleDateString() : 'Recently'}
                             </span>
                           </div>
                         </div>

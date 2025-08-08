@@ -22,7 +22,7 @@ export default function CoachCard({ coach }: CoachCardProps) {
             <h3 className="font-semibold text-lg text-neutral-800">{coach.headline}</h3>
             <div className="flex items-center">
               <Star className="h-4 w-4 text-yellow-400 fill-current" />
-              <span className="text-sm text-neutral-600 ml-1">{coach.ratingAvg.toFixed(1)}</span>
+              <span className="text-sm text-neutral-600 ml-1">{(coach.ratingAvg || 0).toFixed(1)}</span>
             </div>
           </div>
           <p className="text-neutral-600 text-sm mb-3">{coach.city}, {coach.country}</p>

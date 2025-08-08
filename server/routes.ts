@@ -14,7 +14,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         specialties, 
         minPrice, 
         maxPrice, 
-        virtualOnly, 
+        virtualOnly,
+        sortBy,
         limit = "20", 
         offset = "0" 
       } = req.query;
@@ -33,6 +34,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (minPrice) filters.minPrice = parseInt(minPrice as string);
       if (maxPrice) filters.maxPrice = parseInt(maxPrice as string);
       if (virtualOnly) filters.virtualOnly = virtualOnly === 'true';
+      if (sortBy) filters.sortBy = sortBy as string;
 
       const result = await storage.getCoaches(filters);
       res.json(result);

@@ -205,6 +205,7 @@ export class MemStorage implements IStorage {
     const user: User = { 
       ...insertUser, 
       id,
+      name: insertUser.name || null,
       createdAt: new Date()
     };
     this.users.set(id, user);
@@ -225,6 +226,7 @@ export class MemStorage implements IStorage {
     minPrice?: number;
     maxPrice?: number;
     virtualOnly?: boolean;
+    sortBy?: string;
     limit?: number;
     offset?: number;
   } = {}): Promise<{ coaches: Coach[]; total: number }> {
@@ -257,6 +259,38 @@ export class MemStorage implements IStorage {
       );
     }
 
+    // Apply sorting
+    if (filters.sortBy) {
+      switch (filters.sortBy) {
+        case 'price-low':
+          coaches.sort((a, b) => a.pricePerHour - b.pricePerHour);
+          break;
+        case 'price-high':
+          coaches.sort((a, b) => b.pricePerHour - a.pricePerHour);
+          break;
+        case 'rating':
+          coaches.sort((a, b) => (b.ratingAvg || 0) - (a.ratingAvg || 0));
+          break;
+        case 'newest':
+          coaches.sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+          break;
+        default:
+          // Default sorting by rating then by rating count
+          coaches.sort((a, b) => {
+            const ratingDiff = (b.ratingAvg || 0) - (a.ratingAvg || 0);
+            if (ratingDiff !== 0) return ratingDiff;
+            return (b.ratingCount || 0) - (a.ratingCount || 0);
+          });
+      }
+    } else {
+      // Default sorting
+      coaches.sort((a, b) => {
+        const ratingDiff = (b.ratingAvg || 0) - (a.ratingAvg || 0);
+        if (ratingDiff !== 0) return ratingDiff;
+        return (b.ratingCount || 0) - (a.ratingCount || 0);
+      });
+    }
+
     const total = coaches.length;
 
     // Apply pagination
@@ -272,6 +306,7 @@ export class MemStorage implements IStorage {
     const coach: Coach = {
       ...insertCoach,
       id,
+      specialties: insertCoach.specialties || [],
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -298,7 +333,11 @@ export class MemStorage implements IStorage {
 
   async createSpecialty(insertSpecialty: InsertSpecialty): Promise<Specialty> {
     const id = randomUUID();
-    const specialty: Specialty = { ...insertSpecialty, id };
+    const specialty: Specialty = { 
+      ...insertSpecialty, 
+      id,
+      description: insertSpecialty.description || null
+    };
     this.specialties.set(id, specialty);
     return specialty;
   }

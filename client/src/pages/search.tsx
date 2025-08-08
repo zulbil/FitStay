@@ -24,7 +24,7 @@ export default function Search() {
   const [sortBy, setSortBy] = useState("recommended");
 
   const { data: coachesData, isLoading, error } = useQuery<{ coaches: Coach[]; total: number }>({
-    queryKey: ["/api/coaches", filters],
+    queryKey: ["/api/coaches", filters, sortBy],
     queryFn: async () => {
       const params = new URLSearchParams();
       Object.entries(filters).forEach(([key, value]) => {
@@ -36,6 +36,10 @@ export default function Search() {
           }
         }
       });
+      
+      if (sortBy && sortBy !== "recommended") {
+        params.append("sortBy", sortBy);
+      }
       
       const response = await fetch(`/api/coaches?${params.toString()}`);
       if (!response.ok) {
@@ -123,7 +127,15 @@ export default function Search() {
                 <h3 className="text-xl font-semibold text-neutral-800 mb-4">No coaches found</h3>
                 <p className="text-neutral-600 mb-6">Try adjusting your filters or search criteria.</p>
                 <Button 
-                  onClick={() => setFilters({ limit: 12, offset: 0 })}
+                  onClick={() => setFilters({
+                    location: "",
+                    specialty: "",
+                    minPrice: undefined,
+                    maxPrice: undefined,
+                    virtualOnly: undefined,
+                    limit: 12, 
+                    offset: 0
+                  })}
                   variant="outline"
                 >
                   Clear all filters
