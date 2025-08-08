@@ -29,7 +29,7 @@ export const users = pgTable("users", {
 
 export const coaches = pgTable("coaches", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id").notNull().references(() => users.id),
+  userId: varchar("user_id").references(() => users.id),
   slug: text("slug").notNull().unique(),
   headline: text("headline").notNull(),
   bio: text("bio").notNull(),
