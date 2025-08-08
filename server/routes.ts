@@ -184,6 +184,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.get("/api/admin/clients", isAuthenticated, async (req, res) => {
+    try {
+      // In a real app, you'd check if user is admin
+      const clients = await storage.getClients();
+      res.json(clients);
+    } catch (error) {
+      console.error("Error fetching clients:", error);
+      res.status(500).json({ message: "Failed to fetch clients" });
+    }
+  });
+
   app.get("/api/admin/inquiries", isAuthenticated, async (req, res) => {
     try {
       // In a real app, you'd check if user is admin
@@ -212,6 +223,67 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error updating application:", error);
       res.status(500).json({ message: "Failed to update application" });
+    }
+  });
+
+  // Coach management
+  app.patch("/api/admin/coaches/:id", isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+      
+      const coach = await storage.updateCoach(id, updateData);
+      res.json(coach);
+    } catch (error) {
+      console.error("Error updating coach:", error);
+      res.status(500).json({ message: "Failed to update coach" });
+    }
+  });
+
+  app.delete("/api/admin/coaches/:id", isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteCoach(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting coach:", error);
+      res.status(500).json({ message: "Failed to delete coach" });
+    }
+  });
+
+  // Specialty management
+  app.post("/api/admin/specialties", isAuthenticated, async (req, res) => {
+    try {
+      const { name, description } = req.body;
+      const specialty = await storage.createSpecialty({ name, description });
+      res.status(201).json(specialty);
+    } catch (error) {
+      console.error("Error creating specialty:", error);
+      res.status(500).json({ message: "Failed to create specialty" });
+    }
+  });
+
+  app.patch("/api/admin/specialties/:id", isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const updateData = req.body;
+      
+      const specialty = await storage.updateSpecialty(id, updateData);
+      res.json(specialty);
+    } catch (error) {
+      console.error("Error updating specialty:", error);
+      res.status(500).json({ message: "Failed to update specialty" });
+    }
+  });
+
+  app.delete("/api/admin/specialties/:id", isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      await storage.deleteSpecialty(id);
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting specialty:", error);
+      res.status(500).json({ message: "Failed to delete specialty" });
     }
   });
 

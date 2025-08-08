@@ -6,10 +6,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Check, X, Eye, Users, UserCheck, MessageSquare, Star } from "lucide-react";
+import { Check, X, Eye, Users, UserCheck, MessageSquare, Star, Plus, Trash2, Edit, MapPin, DollarSign } from "lucide-react";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 
 interface CoachApplication {
   id: string;
@@ -66,10 +69,29 @@ interface Inquiry {
   };
 }
 
+interface Client {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  createdAt: string;
+}
+
+interface Specialty {
+  id: string;
+  name: string;
+  description?: string;
+}
+
 export default function AdminPage() {
   const { user, isLoading: authLoading } = useAuth();
   const { toast } = useToast();
   const [selectedApplication, setSelectedApplication] = useState<CoachApplication | null>(null);
+  const [editingCoach, setEditingCoach] = useState<Coach | null>(null);
+  const [editingSpecialty, setEditingSpecialty] = useState<Specialty | null>(null);
+  const [newSpecialtyName, setNewSpecialtyName] = useState("");
+  const [newSpecialtyDescription, setNewSpecialtyDescription] = useState("");
 
   // Fetch applications
   const { data: applications = [], isLoading: applicationsLoading } = useQuery({
@@ -86,6 +108,18 @@ export default function AdminPage() {
   // Fetch inquiries
   const { data: inquiries = [], isLoading: inquiriesLoading } = useQuery({
     queryKey: ["/api/admin/inquiries"],
+    enabled: !!user,
+  });
+
+  // Fetch clients
+  const { data: clients = [], isLoading: clientsLoading } = useQuery({
+    queryKey: ["/api/admin/clients"],
+    enabled: !!user,
+  });
+
+  // Fetch specialties
+  const { data: specialties = [], isLoading: specialtiesLoading } = useQuery({
+    queryKey: ["/api/specialties"],
     enabled: !!user,
   });
 
@@ -129,6 +163,71 @@ export default function AdminPage() {
     },
   });
 
+  // Coach management mutations
+  const deleteCoachMutation = useMutation({
+    mutationFn: async (coachId: string) => {
+      await apiRequest(`/api/admin/coaches/${coachId}`, {
+        method: "DELETE",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/coaches"] });
+      toast({ title: "Success", description: "Coach deleted successfully" });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({ title: "Unauthorized", description: "You are logged out. Logging in again...", variant: "destructive" });
+        setTimeout(() => { window.location.href = "/api/login"; }, 500);
+        return;
+      }
+      toast({ title: "Error", description: "Failed to delete coach", variant: "destructive" });
+    },
+  });
+
+  // Specialty management mutations
+  const createSpecialtyMutation = useMutation({
+    mutationFn: async ({ name, description }: { name: string; description: string }) => {
+      await apiRequest("/api/admin/specialties", {
+        method: "POST",
+        body: JSON.stringify({ name, description }),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/specialties"] });
+      setNewSpecialtyName("");
+      setNewSpecialtyDescription("");
+      toast({ title: "Success", description: "Specialty created successfully" });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({ title: "Unauthorized", description: "You are logged out. Logging in again...", variant: "destructive" });
+        setTimeout(() => { window.location.href = "/api/login"; }, 500);
+        return;
+      }
+      toast({ title: "Error", description: "Failed to create specialty", variant: "destructive" });
+    },
+  });
+
+  const deleteSpecialtyMutation = useMutation({
+    mutationFn: async (specialtyId: string) => {
+      await apiRequest(`/api/admin/specialties/${specialtyId}`, {
+        method: "DELETE",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/specialties"] });
+      toast({ title: "Success", description: "Specialty deleted successfully" });
+    },
+    onError: (error) => {
+      if (isUnauthorizedError(error)) {
+        toast({ title: "Unauthorized", description: "You are logged out. Logging in again...", variant: "destructive" });
+        setTimeout(() => { window.location.href = "/api/login"; }, 500);
+        return;
+      }
+      toast({ title: "Error", description: "Failed to delete specialty", variant: "destructive" });
+    },
+  });
+
   if (authLoading) {
     return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
@@ -162,7 +261,7 @@ export default function AdminPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Coaches</CardTitle>
@@ -170,6 +269,16 @@ export default function AdminPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{coaches.length}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Clients</CardTitle>
+            <UserCheck className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{clients.length}</div>
           </CardContent>
         </Card>
         
@@ -210,14 +319,16 @@ export default function AdminPage() {
       </div>
 
       <Tabs defaultValue="applications" className="space-y-6">
-        <TabsList>
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="applications">
-            Coach Applications
+            Applications
             {pendingApplications.length > 0 && (
               <Badge className="ml-2 bg-orange-100 text-orange-800">{pendingApplications.length}</Badge>
             )}
           </TabsTrigger>
           <TabsTrigger value="coaches">Coaches ({coaches.length})</TabsTrigger>
+          <TabsTrigger value="clients">Clients ({clients.length})</TabsTrigger>
+          <TabsTrigger value="specialties">Specialties ({specialties.length})</TabsTrigger>
           <TabsTrigger value="inquiries">Inquiries ({inquiries.length})</TabsTrigger>
         </TabsList>
 
@@ -355,7 +466,7 @@ export default function AdminPage() {
                         </span>
                       </div>
                       <div className="pt-2">
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex flex-wrap gap-1 mb-3">
                           {coach.specialties.slice(0, 3).map((specialty) => (
                             <Badge key={specialty} variant="outline" className="text-xs">
                               {specialty}
@@ -367,6 +478,20 @@ export default function AdminPage() {
                             </Badge>
                           )}
                         </div>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          className="w-full"
+                          onClick={() => {
+                            if (confirm(`Are you sure you want to delete ${coach.headline}? This action cannot be undone.`)) {
+                              deleteCoachMutation.mutate(coach.id);
+                            }
+                          }}
+                          disabled={deleteCoachMutation.isPending}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete Coach
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -374,6 +499,141 @@ export default function AdminPage() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        {/* Clients Tab */}
+        <TabsContent value="clients" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Client Management</CardTitle>
+              <CardDescription>Manage platform users and their accounts</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {clientsLoading ? (
+                <div>Loading clients...</div>
+              ) : clients.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">No clients found</p>
+              ) : (
+                <div className="space-y-4">
+                  {clients.map((client: Client) => (
+                    <div key={client.id} className="flex items-center justify-between p-4 border rounded-lg">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                          <Users className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <div className="font-medium">
+                            {client.firstName && client.lastName 
+                              ? `${client.firstName} ${client.lastName}` 
+                              : client.email}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {client.email} • Joined {new Date(client.createdAt).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </div>
+                      <Badge variant="outline">{client.role}</Badge>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Specialties Tab */}
+        <TabsContent value="specialties" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Specialty Management</CardTitle>
+                  <CardDescription>Manage coaching specialties available on the platform</CardDescription>
+                </div>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Add Specialty
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Add New Specialty</DialogTitle>
+                      <DialogDescription>Create a new coaching specialty for the platform</DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="specialty-name">Name</Label>
+                        <Input
+                          id="specialty-name"
+                          value={newSpecialtyName}
+                          onChange={(e) => setNewSpecialtyName(e.target.value)}
+                          placeholder="e.g., Pilates, Nutrition Coaching"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="specialty-description">Description</Label>
+                        <Textarea
+                          id="specialty-description"
+                          value={newSpecialtyDescription}
+                          onChange={(e) => setNewSpecialtyDescription(e.target.value)}
+                          placeholder="Brief description of this specialty..."
+                        />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        onClick={() => createSpecialtyMutation.mutate({ 
+                          name: newSpecialtyName, 
+                          description: newSpecialtyDescription 
+                        })}
+                        disabled={!newSpecialtyName || createSpecialtyMutation.isPending}
+                      >
+                        {createSpecialtyMutation.isPending ? "Creating..." : "Create Specialty"}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {specialtiesLoading ? (
+                <div>Loading specialties...</div>
+              ) : specialties.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">No specialties found</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {specialties.map((specialty: Specialty) => (
+                    <Card key={specialty.id}>
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between">
+                          <CardTitle className="text-base">{specialty.name}</CardTitle>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              if (confirm(`Are you sure you want to delete "${specialty.name}"? This action cannot be undone.`)) {
+                                deleteSpecialtyMutation.mutate(specialty.id);
+                              }
+                            }}
+                            disabled={deleteSpecialtyMutation.isPending}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </CardHeader>
+                      {specialty.description && (
+                        <CardContent className="pt-0">
+                          <p className="text-sm text-muted-foreground">{specialty.description}</p>
+                        </CardContent>
+                      )}
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* Inquiries Tab */}

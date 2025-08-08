@@ -44,6 +44,12 @@ export interface IStorage {
   getCoachApplications(): Promise<CoachApplication[]>;
   updateCoachApplication(id: string, updates: Partial<InsertCoachApplication>): Promise<CoachApplication | undefined>;
   createCoachFromApplication(applicationId: string): Promise<Coach | undefined>;
+  
+  // Admin management
+  getClients(): Promise<User[]>;
+  deleteCoach(id: string): Promise<void>;
+  updateSpecialty(id: string, updates: Partial<InsertSpecialty>): Promise<Specialty | undefined>;
+  deleteSpecialty(id: string): Promise<void>;
 }
 
 export class MemStorage implements IStorage {
@@ -1364,6 +1370,27 @@ export class DatabaseStorage implements IStorage {
 
     const [coach] = await db.insert(coaches).values(coachData).returning();
     return coach;
+  }
+
+  async getClients(): Promise<User[]> {
+    const clients = await db.select().from(users).where(eq(users.role, "USER"));
+    return clients;
+  }
+
+  async deleteCoach(id: string): Promise<void> {
+    await db.delete(coaches).where(eq(coaches.id, id));
+  }
+
+  async updateSpecialty(id: string, updates: Partial<InsertSpecialty>): Promise<Specialty | undefined> {
+    const [specialty] = await db.update(specialties)
+      .set(updates)
+      .where(eq(specialties.id, id))
+      .returning();
+    return specialty;
+  }
+
+  async deleteSpecialty(id: string): Promise<void> {
+    await db.delete(specialties).where(eq(specialties.id, id));
   }
 }
 
