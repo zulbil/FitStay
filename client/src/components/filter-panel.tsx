@@ -46,11 +46,19 @@ export default function FilterPanel({ onFiltersChange, initialFilters = {} }: Fi
     const filters: any = {};
     
     if (location) filters.location = location;
-    if (selectedSpecialties.length > 0) filters.specialties = selectedSpecialties;
+    // Only filter by specialties if some are selected
+    if (selectedSpecialties.length > 0) {
+      filters.specialties = selectedSpecialties;
+    }
     if (minPrice) filters.minPrice = parseInt(minPrice);
     if (maxPrice) filters.maxPrice = parseInt(maxPrice);
-    if (sessionType === "virtual") filters.virtualOnly = true;
-    if (sessionType === "in-person") filters.virtualOnly = false;
+    // Only set virtualOnly filter when specifically selected (not "both")
+    if (sessionType === "virtual") {
+      filters.virtualOnly = true;
+    } else if (sessionType === "in-person") {
+      filters.virtualOnly = false;
+    }
+    // When sessionType is "both", don't set virtualOnly filter at all
 
     onFiltersChange(filters);
   };

@@ -129,6 +129,32 @@ export class MemStorage implements IStorage {
         ratingAvg: 4.7,
         ratingCount: 203,
         photos: ["https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=300&fit=crop"]
+      },
+      {
+        slug: "jamie-fitness",
+        headline: "HIIT & Cardio Specialist",
+        bio: "High-energy fitness trainer specializing in HIIT workouts and cardio conditioning. Perfect for busy professionals looking for efficient, effective workouts.",
+        city: "Miami",
+        country: "USA",
+        specialties: ["HIIT", "Weight Loss"],
+        pricePerHour: 60,
+        virtualOnly: true,
+        ratingAvg: 4.9,
+        ratingCount: 145,
+        photos: ["https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop"]
+      },
+      {
+        slug: "alex-mobility",
+        headline: "Mobility & Recovery Coach",
+        bio: "Movement specialist focused on mobility training, injury prevention, and recovery. Helping athletes and everyday people move better and feel stronger.",
+        city: "Portland",
+        country: "USA",
+        specialties: ["Mobility", "Sports Performance"],
+        pricePerHour: 70,
+        virtualOnly: false,
+        ratingAvg: 4.8,
+        ratingCount: 92,
+        photos: ["https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=400&h=300&fit=crop"]
       }
     ];
 
@@ -254,9 +280,13 @@ export class MemStorage implements IStorage {
     }
 
     if (filters.virtualOnly !== undefined) {
-      coaches = coaches.filter(coach => 
-        filters.virtualOnly ? coach.virtualOnly : !coach.virtualOnly
-      );
+      if (filters.virtualOnly) {
+        // Show only virtual-only coaches
+        coaches = coaches.filter(coach => coach.virtualOnly);
+      } else {
+        // Show only coaches that offer in-person sessions (not virtual-only)
+        coaches = coaches.filter(coach => !coach.virtualOnly);
+      }
     }
 
     // Apply sorting
