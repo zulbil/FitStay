@@ -1,14 +1,30 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, real, timestamp, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, boolean, real, timestamp, jsonb, index } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// Session storage table for Replit Auth
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: jsonb("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => [index("IDX_session_expire").on(table.expire)],
+);
+
+// User table with Replit Auth support
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  email: text("email").notNull().unique(),
-  name: text("name"),
+  email: text("email").unique(),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  profileImageUrl: varchar("profile_image_url"),
+  name: text("name"), // Keep for compatibility
   role: text("role").notNull().default("USER"), // USER | COACH | ADMIN
   createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
 });
 
 export const coaches = pgTable("coaches", {
@@ -19,6 +35,7 @@ export const coaches = pgTable("coaches", {
   bio: text("bio").notNull(),
   city: text("city").notNull(),
   country: text("country").notNull(),
+  address: text("address"), // Full address for Google Maps
   lat: real("lat"),
   lng: real("lng"),
   specialties: text("specialties").array().notNull().default([]),
@@ -84,6 +101,7 @@ export const insertInquirySchema = createInsertSchema(inquiries).omit({
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type UpsertUser = typeof users.$inferInsert;
 
 export type Coach = typeof coaches.$inferSelect;
 export type InsertCoach = z.infer<typeof insertCoachSchema>;

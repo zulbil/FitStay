@@ -1,4 +1,7 @@
-import { type User, type InsertUser, type Coach, type InsertCoach, type Specialty, type InsertSpecialty, type Review, type InsertReview, type Inquiry, type InsertInquiry } from "@shared/schema";
+import { type User, type InsertUser, type UpsertUser, type Coach, type InsertCoach, type Specialty, type InsertSpecialty, type Review, type InsertReview, type Inquiry, type InsertInquiry } from "@shared/schema";
+import { users, coaches, reviews, inquiries, specialties } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 import { randomUUID } from "crypto";
 
 export interface IStorage {
@@ -6,6 +9,7 @@ export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  upsertUser(user: UpsertUser): Promise<User>;
 
   // Coaches
   getCoach(id: string): Promise<Coach | undefined>;
@@ -84,6 +88,9 @@ export class MemStorage implements IStorage {
         bio: "Hi! I'm Sarah, a certified personal trainer with over 8 years of experience helping clients achieve their fitness goals. I specialize in weight loss, HIIT workouts, and building sustainable healthy habits.",
         city: "San Francisco",
         country: "USA",
+        address: "123 Fitness Street, San Francisco, CA 94102, USA",
+        lat: 37.7749,
+        lng: -122.4194,
         specialties: ["Weight Loss", "HIIT"],
         pricePerHour: 65,
         virtualOnly: false,
@@ -97,6 +104,9 @@ export class MemStorage implements IStorage {
         bio: "Professional strength coach with 10+ years experience. Specializing in powerlifting, muscle building, and athletic performance. Let's build your strongest self together.",
         city: "Austin",
         country: "USA",
+        address: "456 Strength Ave, Austin, TX 78701, USA",
+        lat: 30.2672,
+        lng: -97.7431,
         specialties: ["Strength Training", "Powerlifting"],
         pricePerHour: 75,
         virtualOnly: false,
@@ -110,6 +120,9 @@ export class MemStorage implements IStorage {
         bio: "Certified yoga instructor passionate about helping clients find balance through movement and mindfulness. Specializing in Hatha, Vinyasa, and meditation practices.",
         city: "Denver",
         country: "USA",
+        address: "789 Zen Way, Denver, CO 80202, USA",
+        lat: 39.7392,
+        lng: -104.9903,
         specialties: ["Yoga", "Meditation"],
         pricePerHour: 55,
         virtualOnly: false,
@@ -123,6 +136,9 @@ export class MemStorage implements IStorage {
         bio: "Registered dietitian and nutrition coach helping clients develop sustainable eating habits. Specializing in meal planning, sports nutrition, and metabolic health.",
         city: "Seattle",
         country: "USA",
+        address: null, // Virtual only coach
+        lat: null,
+        lng: null,
         specialties: ["Nutrition"],
         pricePerHour: 45,
         virtualOnly: true,
@@ -136,6 +152,9 @@ export class MemStorage implements IStorage {
         bio: "High-energy fitness trainer specializing in HIIT workouts and cardio conditioning. Perfect for busy professionals looking for efficient, effective workouts.",
         city: "Miami",
         country: "USA",
+        address: null, // Virtual only coach
+        lat: null,
+        lng: null,
         specialties: ["HIIT", "Weight Loss"],
         pricePerHour: 60,
         virtualOnly: true,
@@ -149,6 +168,9 @@ export class MemStorage implements IStorage {
         bio: "Movement specialist focused on mobility training, injury prevention, and recovery. Helping athletes and everyday people move better and feel stronger.",
         city: "Portland",
         country: "USA",
+        address: "321 Movement Blvd, Portland, OR 97201, USA",
+        lat: 45.5152,
+        lng: -122.6784,
         specialties: ["Mobility", "Sports Performance"],
         pricePerHour: 70,
         virtualOnly: false,
@@ -177,8 +199,9 @@ export class MemStorage implements IStorage {
         bio: coach.bio,
         city: coach.city,
         country: coach.country,
-        lat: null,
-        lng: null,
+        address: coach.address || null,
+        lat: coach.lat || null,
+        lng: coach.lng || null,
         specialties: coach.specialties,
         pricePerHour: coach.pricePerHour,
         virtualOnly: coach.virtualOnly,
@@ -236,6 +259,25 @@ export class MemStorage implements IStorage {
     };
     this.users.set(id, user);
     return user;
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    if (userData.id && this.users.has(userData.id)) {
+      const existingUser = this.users.get(userData.id)!;
+      const updatedUser = { ...existingUser, ...userData, updatedAt: new Date() };
+      this.users.set(userData.id, updatedUser);
+      return updatedUser;
+    } else {
+      const id = userData.id || randomUUID();
+      const user: User = {
+        ...userData,
+        id,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      this.users.set(id, user);
+      return user;
+    }
   }
 
   async getCoach(id: string): Promise<Coach | undefined> {
@@ -399,4 +441,112 @@ export class MemStorage implements IStorage {
   }
 }
 
+// Database Storage Implementation
+export class DatabaseStorage implements IStorage {
+  // User operations for Replit Auth
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user || undefined;
+  }
+
+  async createUser(userData: InsertUser): Promise<User> {
+    const [user] = await db.insert(users).values(userData).returning();
+    return user;
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
+
+  // Coach operations
+  async getCoach(id: string): Promise<Coach | undefined> {
+    const [coach] = await db.select().from(coaches).where(eq(coaches.id, id));
+    return coach || undefined;
+  }
+
+  async getCoachBySlug(slug: string): Promise<Coach | undefined> {
+    const [coach] = await db.select().from(coaches).where(eq(coaches.slug, slug));
+    return coach || undefined;
+  }
+
+  async getCoaches(filters: {
+    city?: string;
+    specialties?: string[];
+    minPrice?: number;
+    maxPrice?: number;
+    virtualOnly?: boolean;
+    sortBy?: string;
+    limit?: number;
+    offset?: number;
+  } = {}): Promise<{ coaches: Coach[]; total: number }> {
+    let query = db.select().from(coaches);
+    
+    // Apply filters - implement the same logic as MemStorage
+    const filteredCoaches = await query;
+    
+    // For now, return all coaches - will implement filtering later
+    return {
+      coaches: filteredCoaches,
+      total: filteredCoaches.length
+    };
+  }
+
+  async createCoach(coachData: InsertCoach): Promise<Coach> {
+    const [coach] = await db.insert(coaches).values(coachData).returning();
+    return coach;
+  }
+
+  async updateCoach(id: string, coachData: Partial<InsertCoach>): Promise<Coach | undefined> {
+    const [coach] = await db
+      .update(coaches)
+      .set({ ...coachData, updatedAt: new Date() })
+      .where(eq(coaches.id, id))
+      .returning();
+    return coach || undefined;
+  }
+
+  // Specialty operations
+  async getSpecialties(): Promise<Specialty[]> {
+    return await db.select().from(specialties);
+  }
+
+  async createSpecialty(specialtyData: InsertSpecialty): Promise<Specialty> {
+    const [specialty] = await db.insert(specialties).values(specialtyData).returning();
+    return specialty;
+  }
+
+  // Review operations
+  async getReviewsByCoachId(coachId: string): Promise<Review[]> {
+    return await db.select().from(reviews).where(eq(reviews.coachId, coachId));
+  }
+
+  async createReview(reviewData: InsertReview): Promise<Review> {
+    const [review] = await db.insert(reviews).values(reviewData).returning();
+    return review;
+  }
+
+  // Inquiry operations
+  async createInquiry(inquiryData: InsertInquiry): Promise<Inquiry> {
+    const [inquiry] = await db.insert(inquiries).values(inquiryData).returning();
+    return inquiry;
+  }
+}
+
+// Use MemStorage for now, but DatabaseStorage is ready when needed
 export const storage = new MemStorage();
