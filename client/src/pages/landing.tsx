@@ -23,17 +23,6 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b border-neutral-200">
-        <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-neutral-800">CoachBnB</h1>
-            <Button onClick={handleLogin} className="bg-primary hover:bg-primary/90">
-              Log In
-            </Button>
-          </div>
-        </div>
-      </header>
 
       {/* Hero Section */}
       <section className="py-16 lg:py-24">
