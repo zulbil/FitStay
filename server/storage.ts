@@ -267,7 +267,7 @@ export class MemStorage implements IStorage {
 
     if (filters.specialties && filters.specialties.length > 0) {
       coaches = coaches.filter(coach =>
-        filters.specialties!.some(specialty => coach.specialties.includes(specialty))
+        filters.specialties!.every(specialty => coach.specialties.includes(specialty))
       );
     }
 
