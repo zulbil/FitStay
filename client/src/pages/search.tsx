@@ -29,7 +29,11 @@ export default function Search() {
       const params = new URLSearchParams();
       Object.entries(filters).forEach(([key, value]) => {
         if (value !== undefined && value !== "") {
-          if (key === "specialty") {
+          if (key === "specialties" && Array.isArray(value)) {
+            // Handle array of specialties
+            value.forEach(specialty => params.append("specialties", specialty));
+          } else if (key === "specialty") {
+            // Handle legacy single specialty
             params.append("specialties", value as string);
           } else {
             params.append(key, value.toString());
@@ -50,11 +54,32 @@ export default function Search() {
   });
 
   const handleFiltersChange = (newFilters: any) => {
-    setFilters(prev => ({
-      ...prev,
-      ...newFilters,
-      offset: 0, // Reset pagination when filters change
-    }));
+    setFilters(prev => {
+      // Start with current filters and reset pagination
+      const updatedFilters = { ...prev, offset: 0 };
+      
+      // Apply new filters, but handle removal of undefined/empty values
+      Object.keys(newFilters).forEach(key => {
+        if (newFilters[key] === undefined || newFilters[key] === null || 
+            (Array.isArray(newFilters[key]) && newFilters[key].length === 0)) {
+          // Remove the filter key entirely when it's empty/undefined
+          delete updatedFilters[key];
+        } else {
+          updatedFilters[key] = newFilters[key];
+        }
+      });
+      
+      // Also remove any keys that weren't included in newFilters but might need to be cleared
+      // This handles the case where a filter is removed completely
+      const filterKeys = ['location', 'specialties', 'minPrice', 'maxPrice', 'virtualOnly'];
+      filterKeys.forEach(key => {
+        if (!(key in newFilters) && key !== 'offset' && key !== 'limit') {
+          delete updatedFilters[key];
+        }
+      });
+      
+      return updatedFilters;
+    });
   };
 
   const handleLoadMore = () => {

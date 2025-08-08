@@ -45,20 +45,19 @@ export default function FilterPanel({ onFiltersChange, initialFilters = {} }: Fi
   const applyFilters = () => {
     const filters: any = {};
     
-    if (location) filters.location = location;
-    // Only filter by specialties if some are selected
-    if (selectedSpecialties.length > 0) {
-      filters.specialties = selectedSpecialties;
-    }
-    if (minPrice) filters.minPrice = parseInt(minPrice);
-    if (maxPrice) filters.maxPrice = parseInt(maxPrice);
-    // Only set virtualOnly filter when specifically selected (not "both")
+    if (location.trim()) filters.location = location;
+    // Always include specialties in the filter object, even if empty
+    filters.specialties = selectedSpecialties;
+    if (minPrice && parseInt(minPrice) > 0) filters.minPrice = parseInt(minPrice);
+    if (maxPrice && parseInt(maxPrice) > 0) filters.maxPrice = parseInt(maxPrice);
+    
+    // Always include virtualOnly filter to be explicit about session type
     if (sessionType === "virtual") {
       filters.virtualOnly = true;
     } else if (sessionType === "in-person") {
       filters.virtualOnly = false;
     }
-    // When sessionType is "both", don't set virtualOnly filter at all
+    // When sessionType is "both", explicitly set to undefined to clear filter
 
     onFiltersChange(filters);
   };
