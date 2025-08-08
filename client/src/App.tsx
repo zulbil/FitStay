@@ -10,6 +10,7 @@ import Search from "@/pages/search";
 import CoachProfile from "@/pages/coach-profile";
 import ForCoaches from "@/pages/for-coaches";
 import CoachOnboarding from "@/pages/coach-onboarding";
+import AdminPage from "@/pages/admin";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { useAuth } from "@/hooks/useAuth";
@@ -28,6 +29,7 @@ function Router() {
           <Route path="/coach/:slug" component={CoachProfile} />
           <Route path="/for-coaches" component={ForCoaches} />
           <Route path="/become-a-coach" component={CoachOnboarding} />
+          <Route path="/admin" component={AdminPage} />
           <Route component={NotFound} />
         </Switch>
       </main>

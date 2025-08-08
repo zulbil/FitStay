@@ -36,11 +36,14 @@ export interface IStorage {
 
   // Inquiries
   createInquiry(inquiry: InsertInquiry): Promise<Inquiry>;
+  getInquiries(): Promise<Inquiry[]>;
   
   // Coach Applications
   createCoachApplication(application: InsertCoachApplication): Promise<CoachApplication>;
   getCoachApplicationByUserId(userId: string): Promise<CoachApplication | undefined>;
-  updateCoachApplicationStatus(id: string, status: "pending" | "approved" | "rejected"): Promise<CoachApplication | undefined>;
+  getCoachApplications(): Promise<CoachApplication[]>;
+  updateCoachApplication(id: string, updates: Partial<InsertCoachApplication>): Promise<CoachApplication | undefined>;
+  createCoachFromApplication(applicationId: string): Promise<Coach | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -1271,6 +1274,96 @@ export class DatabaseStorage implements IStorage {
       .where(eq(coachApplications.id, id))
       .returning();
     return application || undefined;
+  }
+
+  async getInquiries(): Promise<Inquiry[]> {
+    const allInquiries = await db.select({
+      id: inquiries.id,
+      coachId: inquiries.coachId,
+      name: inquiries.name,
+      email: inquiries.email,
+      message: inquiries.message,
+      createdAt: inquiries.createdAt,
+      coach: {
+        slug: coaches.slug,
+        headline: coaches.headline,
+      }
+    })
+    .from(inquiries)
+    .leftJoin(coaches, eq(inquiries.coachId, coaches.id))
+    .orderBy(inquiries.createdAt);
+    
+    return allInquiries;
+  }
+
+  async getCoachApplications(): Promise<CoachApplication[]> {
+    const applications = await db.select({
+      id: coachApplications.id,
+      userId: coachApplications.userId,
+      status: coachApplications.status,
+      headline: coachApplications.headline,
+      bio: coachApplications.bio,
+      experience: coachApplications.experience,
+      certifications: coachApplications.certifications,
+      pricePerHour: coachApplications.pricePerHour,
+      virtualOnly: coachApplications.virtualOnly,
+      specialties: coachApplications.specialties,
+      location: coachApplications.location,
+      address: coachApplications.address,
+      latitude: coachApplications.latitude,
+      longitude: coachApplications.longitude,
+      profilePhoto: coachApplications.profilePhoto,
+      additionalPhotos: coachApplications.additionalPhotos,
+      instagramUrl: coachApplications.instagramUrl,
+      websiteUrl: coachApplications.websiteUrl,
+      adminNotes: coachApplications.adminNotes,
+      createdAt: coachApplications.createdAt,
+      user: {
+        email: users.email,
+        firstName: users.firstName,
+        lastName: users.lastName,
+      }
+    })
+    .from(coachApplications)
+    .leftJoin(users, eq(coachApplications.userId, users.id))
+    .orderBy(coachApplications.createdAt);
+    
+    return applications;
+  }
+
+  async updateCoachApplication(id: string, updates: Partial<InsertCoachApplication>): Promise<CoachApplication | undefined> {
+    const [application] = await db.update(coachApplications)
+      .set({ ...updates, updatedAt: new Date() })
+      .where(eq(coachApplications.id, id))
+      .returning();
+    return application;
+  }
+
+  async createCoachFromApplication(applicationId: string): Promise<Coach | undefined> {
+    const [application] = await db.select().from(coachApplications).where(eq(coachApplications.id, applicationId));
+    
+    if (!application || application.status !== "approved") {
+      return undefined;
+    }
+
+    const coachData = {
+      userId: application.userId,
+      slug: application.headline.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-'),
+      headline: application.headline,
+      bio: application.bio,
+      city: application.location || "Unknown",
+      country: "USA",
+      address: application.address,
+      lat: application.latitude,
+      lng: application.longitude,
+      specialties: application.specialties || [],
+      pricePerHour: application.pricePerHour,
+      virtualOnly: application.virtualOnly || false,
+      photos: application.profilePhoto ? [application.profilePhoto, ...(application.additionalPhotos || [])] : [],
+    };
+
+    const [coach] = await db.insert(coaches).values(coachData).returning();
+    return coach;
   }
 }
 

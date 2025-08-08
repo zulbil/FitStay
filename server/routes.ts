@@ -161,6 +161,60 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Admin routes
+  app.get("/api/admin/applications", isAuthenticated, async (req, res) => {
+    try {
+      // In a real app, you'd check if user is admin
+      const applications = await storage.getCoachApplications();
+      res.json(applications);
+    } catch (error) {
+      console.error("Error fetching applications:", error);
+      res.status(500).json({ message: "Failed to fetch applications" });
+    }
+  });
+
+  app.get("/api/admin/coaches", isAuthenticated, async (req, res) => {
+    try {
+      // In a real app, you'd check if user is admin
+      const coaches = await storage.getCoaches({});
+      res.json(coaches);
+    } catch (error) {
+      console.error("Error fetching coaches:", error);
+      res.status(500).json({ message: "Failed to fetch coaches" });
+    }
+  });
+
+  app.get("/api/admin/inquiries", isAuthenticated, async (req, res) => {
+    try {
+      // In a real app, you'd check if user is admin
+      const inquiries = await storage.getInquiries();
+      res.json(inquiries);
+    } catch (error) {
+      console.error("Error fetching inquiries:", error);
+      res.status(500).json({ message: "Failed to fetch inquiries" });
+    }
+  });
+
+  app.patch("/api/admin/applications/:id", isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status, adminNotes } = req.body;
+      
+      // In a real app, you'd check if user is admin
+      const application = await storage.updateCoachApplication(id, { status, adminNotes });
+      
+      // If approved, create coach profile
+      if (status === "approved") {
+        await storage.createCoachFromApplication(id);
+      }
+      
+      res.json(application);
+    } catch (error) {
+      console.error("Error updating application:", error);
+      res.status(500).json({ message: "Failed to update application" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
