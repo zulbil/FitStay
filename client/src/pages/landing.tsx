@@ -35,19 +35,10 @@ export default function Landing() {
       params.set("locationText", selectedLocationData.fullAddress || `${selectedLocationData.city}, ${selectedLocationData.stateCode} ${selectedLocationData.zipCode}`);
       params.set("radius", "25"); // Default 25 mile radius
       
-      console.log("Homepage search with location data:", {
-        lat: selectedLocationData.lat,
-        lng: selectedLocationData.lng,
-        zipCode: selectedLocationData.zipCode,
-        radius: "25"
-      });
     } else if (searchLocation) {
       // Fallback to basic location search
       params.set("location", searchLocation);
-      console.log("Homepage search with basic location:", searchLocation);
     }
-    
-    console.log("Homepage search URL:", `/search?${params.toString()}`);
     setLocation(`/search?${params.toString()}`);
   };
 

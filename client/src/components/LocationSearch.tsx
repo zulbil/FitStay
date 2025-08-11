@@ -24,11 +24,13 @@ interface LocationSearchProps {
     locationText?: string;
   }) => void;
   className?: string;
+  initialLocationText?: string;
+  initialRadius?: number;
 }
 
-export function LocationSearch({ onLocationSearch, className }: LocationSearchProps) {
-  const [locationInput, setLocationInput] = useState("");
-  const [radius, setRadius] = useState([25]); // Default 25 miles
+export function LocationSearch({ onLocationSearch, className, initialLocationText, initialRadius }: LocationSearchProps) {
+  const [locationInput, setLocationInput] = useState(initialLocationText || "");
+  const [radius, setRadius] = useState([initialRadius || 25]); // Default 25 miles
   const [selectedLocation, setSelectedLocation] = useState<ZipCodeData | null>(null);
 
   const handleAddressSelected = (addressData: ZipCodeData) => {

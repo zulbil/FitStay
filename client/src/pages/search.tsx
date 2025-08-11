@@ -30,9 +30,6 @@ export default function Search() {
       offset: 0,
     };
     
-    console.log("Search page initialized with filters:", initialFilters);
-    console.log("Search page URL params:", Object.fromEntries(searchParams.entries()));
-    
     return initialFilters;
   });
 
@@ -145,6 +142,8 @@ export default function Search() {
             <div className="bg-white p-4 rounded-lg border border-neutral-200">
               <LocationSearch 
                 onLocationSearch={handleLocationSearch}
+                initialLocationText={locationText}
+                initialRadius={filters.radius}
                 className="w-full"
               />
               {locationText && (
