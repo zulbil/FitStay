@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AddressAutocomplete } from "./AddressAutocomplete";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,9 +26,10 @@ interface LocationSearchProps {
   className?: string;
   initialLocationText?: string;
   initialRadius?: number;
+  clearTrigger?: number; // Used to trigger clearing from parent
 }
 
-export function LocationSearch({ onLocationSearch, className, initialLocationText, initialRadius }: LocationSearchProps) {
+export function LocationSearch({ onLocationSearch, className, initialLocationText, initialRadius, clearTrigger }: LocationSearchProps) {
   const [locationInput, setLocationInput] = useState(initialLocationText || "");
   const [radius, setRadius] = useState([initialRadius || 25]); // Default 25 miles
   const [selectedLocation, setSelectedLocation] = useState<ZipCodeData | null>(null);
@@ -65,8 +66,16 @@ export function LocationSearch({ onLocationSearch, className, initialLocationTex
   const handleClearLocation = () => {
     setLocationInput("");
     setSelectedLocation(null);
+    setRadius([25]); // Reset radius to default
     onLocationSearch({});
   };
+
+  // Clear location when parent triggers clear
+  useEffect(() => {
+    if (clearTrigger !== undefined && clearTrigger > 0) {
+      handleClearLocation();
+    }
+  }, [clearTrigger]);
 
   return (
     <div className={`space-y-4 ${className}`}>

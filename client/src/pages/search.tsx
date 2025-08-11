@@ -34,6 +34,7 @@ export default function Search() {
   });
 
   const [locationText, setLocationText] = useState(searchParams.get("locationText") || "");
+  const [clearTrigger, setClearTrigger] = useState(0);
 
   const [sortBy, setSortBy] = useState("recommended");
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
@@ -53,6 +54,28 @@ export default function Search() {
       radius: searchData.radius || 25,
     }));
     setLocationText(searchData.locationText || "");
+  };
+
+  const handleClearAllFilters = () => {
+    // Reset all filters to initial state
+    setFilters({
+      location: "",
+      zipCode: "",
+      lat: undefined,
+      lng: undefined,
+      radius: 25,
+      specialty: "",
+      minPrice: undefined,
+      maxPrice: undefined,
+      virtualOnly: undefined,
+      limit: 12,
+      offset: 0,
+    });
+    setLocationText("");
+    setSortBy("recommended");
+    
+    // Trigger location search component to clear
+    setClearTrigger(prev => prev + 1);
   };
 
   const { data: coachesData, isLoading, error } = useQuery<{ coaches: (Coach & { distance?: number })[]; total: number }>({
@@ -144,6 +167,7 @@ export default function Search() {
                 onLocationSearch={handleLocationSearch}
                 initialLocationText={locationText}
                 initialRadius={filters.radius}
+                clearTrigger={clearTrigger}
                 className="w-full"
               />
               {locationText && (
@@ -159,6 +183,7 @@ export default function Search() {
             <FilterPanel 
               onFiltersChange={handleFiltersChange}
               initialFilters={filters}
+              onClearFilters={handleClearAllFilters}
             />
           </div>
           

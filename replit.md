@@ -90,6 +90,8 @@ Input validation is handled using Zod schemas integrated with Drizzle ORM for ty
 - Users can browse coaches freely without authentication
 - Authentication required only for messaging coaches or applying as a coach
 - Complete two-sided marketplace functionality operational
+- Enhanced search functionality with comprehensive filter clearing capability
+- Pre-populated location search from homepage ZIP code selections
 
 ### Location Data Enhancement (August 2025)
 - Updated all coaches with authentic US addresses across major cities

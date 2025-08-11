@@ -15,9 +15,10 @@ interface FilterPanelProps {
     virtualOnly?: boolean;
   }) => void;
   initialFilters?: any;
+  onClearFilters?: () => void;
 }
 
-export default function FilterPanel({ onFiltersChange, initialFilters = {} }: FilterPanelProps) {
+export default function FilterPanel({ onFiltersChange, initialFilters = {}, onClearFilters }: FilterPanelProps) {
   const [location, setLocation] = useState(initialFilters.location || "");
   const [selectedSpecialties, setSelectedSpecialties] = useState<string[]>(initialFilters.specialties || []);
   const [minPrice, setMinPrice] = useState(initialFilters.minPrice || "");
@@ -62,14 +63,35 @@ export default function FilterPanel({ onFiltersChange, initialFilters = {} }: Fi
     onFiltersChange(filters);
   };
 
+  const clearAllFilters = () => {
+    setLocation("");
+    setSelectedSpecialties([]);
+    setMinPrice("");
+    setMaxPrice("");
+    setSessionType("both");
+    
+    // Also notify parent to clear location search
+    if (onClearFilters) {
+      onClearFilters();
+    }
+  };
+
   useEffect(() => {
     applyFilters();
   }, [location, selectedSpecialties, minPrice, maxPrice, sessionType]);
 
   return (
     <Card className="bg-white border border-neutral-200 rounded-2xl sticky top-24">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <CardTitle className="font-semibold text-lg text-neutral-800">Filters</CardTitle>
+        <Button 
+          variant="ghost" 
+          size="sm"
+          onClick={clearAllFilters}
+          className="text-primary hover:text-primary/80 text-sm"
+        >
+          Clear All
+        </Button>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Location Filter */}
