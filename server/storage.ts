@@ -1266,17 +1266,110 @@ export class DatabaseStorage implements IStorage {
     sortBy?: string;
     limit?: number;
     offset?: number;
+    searchLat?: number;
+    searchLng?: number;
+    radius?: number;
   } = {}): Promise<{ coaches: Coach[]; total: number }> {
     let query = db.select().from(coaches);
     
-    // Apply filters - implement the same logic as MemStorage
-    const filteredCoaches = await query;
+    // Get all coaches first
+    let allCoaches = await query;
     
-    // For now, return all coaches - will implement filtering later
+    // Apply filters
+    if (filters.city) {
+      allCoaches = allCoaches.filter(coach => coach.city.toLowerCase().includes(filters.city!.toLowerCase()));
+    }
+    
+    if (filters.specialties && filters.specialties.length > 0) {
+      allCoaches = allCoaches.filter(coach => {
+        return filters.specialties!.every(specialty => 
+          coach.specialties.includes(specialty)
+        );
+      });
+    }
+    
+    if (filters.minPrice !== undefined) {
+      allCoaches = allCoaches.filter(coach => coach.pricePerHour >= filters.minPrice!);
+    }
+    
+    if (filters.maxPrice !== undefined) {
+      allCoaches = allCoaches.filter(coach => coach.pricePerHour <= filters.maxPrice!);
+    }
+    
+    if (filters.virtualOnly !== undefined) {
+      allCoaches = allCoaches.filter(coach => coach.virtualOnly === filters.virtualOnly);
+    }
+
+    // Apply location-based filtering
+    if (filters.searchLat && filters.searchLng && filters.radius) {
+      allCoaches = allCoaches.filter(coach => {
+        if (!coach.lat || !coach.lng) return false;
+        
+        const distance = this.calculateDistance(
+          filters.searchLat!,
+          filters.searchLng!,
+          coach.lat,
+          coach.lng
+        );
+        
+        return distance <= filters.radius!;
+      });
+    }
+    
+    const total = allCoaches.length;
+    
+    // Apply sorting
+    if (filters.sortBy === 'price_low') {
+      allCoaches.sort((a, b) => a.pricePerHour - b.pricePerHour);
+    } else if (filters.sortBy === 'price_high') {
+      allCoaches.sort((a, b) => b.pricePerHour - a.pricePerHour);
+    } else if (filters.sortBy === 'rating') {
+      allCoaches.sort((a, b) => {
+        const ratingDiff = (b.ratingAvg || 0) - (a.ratingAvg || 0);
+        if (ratingDiff !== 0) return ratingDiff;
+        return (b.ratingCount || 0) - (a.ratingCount || 0);
+      });
+    } else if (filters.searchLat && filters.searchLng) {
+      // Sort by distance for location-based searches
+      allCoaches.sort((a, b) => {
+        if (!a.lat || !a.lng || !b.lat || !b.lng) return 0;
+        
+        const distanceA = this.calculateDistance(filters.searchLat!, filters.searchLng!, a.lat, a.lng);
+        const distanceB = this.calculateDistance(filters.searchLat!, filters.searchLng!, b.lat, b.lng);
+        
+        return distanceA - distanceB;
+      });
+    } else {
+      // Default sorting by rating
+      allCoaches.sort((a, b) => {
+        const ratingDiff = (b.ratingAvg || 0) - (a.ratingAvg || 0);
+        if (ratingDiff !== 0) return ratingDiff;
+        return (b.ratingCount || 0) - (a.ratingCount || 0);
+      });
+    }
+
+    // Apply pagination
+    const offset = filters.offset || 0;
+    const limit = filters.limit || 20;
+    allCoaches = allCoaches.slice(offset, offset + limit);
+
     return {
-      coaches: filteredCoaches,
-      total: filteredCoaches.length
+      coaches: allCoaches,
+      total: total
     };
+  }
+
+  // Helper method to calculate distance between two points
+  private calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+    const R = 3959; // Earth's radius in miles
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLng = (lng2 - lng1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
   }
 
   async createCoach(coachData: InsertCoach): Promise<Coach> {

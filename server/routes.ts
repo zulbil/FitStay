@@ -70,7 +70,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         zipCode,
         lat,
         lng,
-        radius = "100", // Default 100 mile radius
+        radius = "25", // Default 25 mile radius
         specialties, 
         minPrice, 
         maxPrice, 
