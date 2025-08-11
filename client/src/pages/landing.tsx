@@ -33,7 +33,7 @@ export default function Landing() {
       params.set("lng", selectedLocationData.lng.toString());
       params.set("zipCode", selectedLocationData.zipCode);
       params.set("locationText", selectedLocationData.fullAddress || `${selectedLocationData.city}, ${selectedLocationData.stateCode} ${selectedLocationData.zipCode}`);
-      params.set("radius", "50"); // Default 50 mile radius
+      params.set("radius", "25"); // Default 25 mile radius
     } else if (searchLocation) {
       // Fallback to basic location search
       params.set("location", searchLocation);

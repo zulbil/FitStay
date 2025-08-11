@@ -20,7 +20,7 @@ export default function Search() {
     zipCode: searchParams.get("zipCode") || "",
     lat: searchParams.get("lat") ? parseFloat(searchParams.get("lat")!) : undefined,
     lng: searchParams.get("lng") ? parseFloat(searchParams.get("lng")!) : undefined,
-    radius: searchParams.get("radius") ? parseInt(searchParams.get("radius")!) : 100,
+    radius: searchParams.get("radius") ? parseInt(searchParams.get("radius")!) : 25,
     specialty: searchParams.get("specialty") || "",
     minPrice: searchParams.get("minPrice") ? parseInt(searchParams.get("minPrice")!) : undefined,
     maxPrice: searchParams.get("maxPrice") ? parseInt(searchParams.get("maxPrice")!) : undefined,
@@ -46,7 +46,7 @@ export default function Search() {
       zipCode: searchData.zipCode || "",
       lat: searchData.lat,
       lng: searchData.lng,
-      radius: searchData.radius || 100,
+      radius: searchData.radius || 25,
     }));
     setLocationText(searchData.locationText || "");
   };

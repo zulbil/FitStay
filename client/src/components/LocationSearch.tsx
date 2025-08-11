@@ -28,7 +28,7 @@ interface LocationSearchProps {
 
 export function LocationSearch({ onLocationSearch, className }: LocationSearchProps) {
   const [locationInput, setLocationInput] = useState("");
-  const [radius, setRadius] = useState([100]); // Default 100 miles
+  const [radius, setRadius] = useState([25]); // Default 25 miles
   const [selectedLocation, setSelectedLocation] = useState<ZipCodeData | null>(null);
 
   const handleAddressSelected = (addressData: ZipCodeData) => {
