@@ -15,18 +15,25 @@ export default function Search() {
   const [location] = useLocation();
   const searchParams = new URLSearchParams(location.split('?')[1] || '');
   
-  const [filters, setFilters] = useState({
-    location: searchParams.get("location") || "",
-    zipCode: searchParams.get("zipCode") || "",
-    lat: searchParams.get("lat") ? parseFloat(searchParams.get("lat")!) : undefined,
-    lng: searchParams.get("lng") ? parseFloat(searchParams.get("lng")!) : undefined,
-    radius: searchParams.get("radius") ? parseInt(searchParams.get("radius")!) : 25,
-    specialty: searchParams.get("specialty") || "",
-    minPrice: searchParams.get("minPrice") ? parseInt(searchParams.get("minPrice")!) : undefined,
-    maxPrice: searchParams.get("maxPrice") ? parseInt(searchParams.get("maxPrice")!) : undefined,
-    virtualOnly: searchParams.get("virtualOnly") === "true" ? true : undefined,
-    limit: 12,
-    offset: 0,
+  const [filters, setFilters] = useState(() => {
+    const initialFilters = {
+      location: searchParams.get("location") || "",
+      zipCode: searchParams.get("zipCode") || "",
+      lat: searchParams.get("lat") ? parseFloat(searchParams.get("lat")!) : undefined,
+      lng: searchParams.get("lng") ? parseFloat(searchParams.get("lng")!) : undefined,
+      radius: searchParams.get("radius") ? parseInt(searchParams.get("radius")!) : 25,
+      specialty: searchParams.get("specialty") || "",
+      minPrice: searchParams.get("minPrice") ? parseInt(searchParams.get("minPrice")!) : undefined,
+      maxPrice: searchParams.get("maxPrice") ? parseInt(searchParams.get("maxPrice")!) : undefined,
+      virtualOnly: searchParams.get("virtualOnly") === "true" ? true : undefined,
+      limit: 12,
+      offset: 0,
+    };
+    
+    console.log("Search page initialized with filters:", initialFilters);
+    console.log("Search page URL params:", Object.fromEntries(searchParams.entries()));
+    
+    return initialFilters;
   });
 
   const [locationText, setLocationText] = useState(searchParams.get("locationText") || "");
