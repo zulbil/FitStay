@@ -13,7 +13,7 @@ import type { Coach } from "@shared/schema";
 
 export default function Search() {
   const [location] = useLocation();
-  const searchParams = new URLSearchParams(location.split('?')[1] || '');
+  const searchParams = new URLSearchParams(window.location.search);
   
   const [filters, setFilters] = useState(() => {
     const initialFilters = {
