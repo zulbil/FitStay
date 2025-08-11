@@ -91,4 +91,11 @@ Input validation is handled using Zod schemas integrated with Drizzle ORM for ty
 - Authentication required only for messaging coaches or applying as a coach
 - Complete two-sided marketplace functionality operational
 
+### Location Data Enhancement (August 2025)
+- Updated all coaches with authentic US addresses across major cities
+- Added realistic coordinates for proper distance calculations
+- Covers major metropolitan areas: Houston, Austin, Boston, Seattle, Phoenix, Portland, Nashville, Atlanta, Chicago, Beverly Hills, San Francisco, Washington DC, Philadelphia, Minneapolis, Las Vegas
+- Reduced default search radius to 25 miles for more relevant local results
+- Enhanced ZIP code autocomplete with Google Places API integration
+
 The architecture is designed to be production-ready and scalable, with clear separation of concerns, comprehensive authentication, and modern web development best practices throughout the stack.
