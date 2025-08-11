@@ -1,5 +1,7 @@
 import * as client from "openid-client";
 import { Strategy, type VerifyFunction } from "openid-client/passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { Strategy as FacebookStrategy } from "passport-facebook";
 
 import passport from "passport";
 import session from "express-session";
@@ -56,13 +58,18 @@ function updateUserSession(
 
 async function upsertUser(
   claims: any,
+  provider?: string
 ) {
+  // Generate a unique ID based on provider and external ID
+  const userId = provider ? `${provider}_${claims["sub"] || claims["id"]}` : claims["sub"];
+  
   await storage.upsertUser({
-    id: claims["sub"],
+    id: userId,
     email: claims["email"],
-    firstName: claims["first_name"],
-    lastName: claims["last_name"],
-    profileImageUrl: claims["profile_image_url"],
+    firstName: claims["first_name"] || claims["given_name"] || claims["name"]?.split(' ')[0],
+    lastName: claims["last_name"] || claims["family_name"] || claims["name"]?.split(' ')[1],
+    profileImageUrl: claims["profile_image_url"] || claims["picture"],
+    provider: provider || "replit",
   });
 }
 
@@ -80,9 +87,66 @@ export async function setupAuth(app: Express) {
   ) => {
     const user = {};
     updateUserSession(user, tokens);
-    await upsertUser(tokens.claims());
+    await upsertUser(tokens.claims(), "replit");
     verified(null, user);
   };
+
+  // Google OAuth Strategy
+  if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    passport.use(new GoogleStrategy({
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "/api/auth/google/callback"
+    }, async (accessToken, refreshToken, profile, done) => {
+      try {
+        const user = {
+          claims: {
+            sub: profile.id,
+            email: profile.emails?.[0]?.value,
+            given_name: profile.name?.givenName,
+            family_name: profile.name?.familyName,
+            picture: profile.photos?.[0]?.value,
+          },
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          expires_at: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
+        };
+        await upsertUser(user.claims, "google");
+        return done(null, user);
+      } catch (error) {
+        return done(error, null);
+      }
+    }));
+  }
+
+  // Facebook OAuth Strategy
+  if (process.env.FACEBOOK_APP_ID && process.env.FACEBOOK_APP_SECRET) {
+    passport.use(new FacebookStrategy({
+      clientID: process.env.FACEBOOK_APP_ID,
+      clientSecret: process.env.FACEBOOK_APP_SECRET,
+      callbackURL: "/api/auth/facebook/callback",
+      profileFields: ['id', 'emails', 'name', 'picture']
+    }, async (accessToken, refreshToken, profile, done) => {
+      try {
+        const user = {
+          claims: {
+            sub: profile.id,
+            email: profile.emails?.[0]?.value,
+            given_name: profile.name?.givenName,
+            family_name: profile.name?.familyName,
+            picture: profile.photos?.[0]?.value,
+          },
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          expires_at: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
+        };
+        await upsertUser(user.claims, "facebook");
+        return done(null, user);
+      } catch (error) {
+        return done(error, null);
+      }
+    }));
+  }
 
   for (const domain of process.env
     .REPLIT_DOMAINS!.split(",")) {
@@ -114,6 +178,30 @@ export async function setupAuth(app: Express) {
       failureRedirect: "/api/login",
     })(req, res, next);
   });
+
+  // Google OAuth routes
+  app.get("/api/auth/google", 
+    passport.authenticate("google", { scope: ["profile", "email"] })
+  );
+
+  app.get("/api/auth/google/callback",
+    passport.authenticate("google", { failureRedirect: "/login" }),
+    (req, res) => {
+      res.redirect("/");
+    }
+  );
+
+  // Facebook OAuth routes
+  app.get("/api/auth/facebook",
+    passport.authenticate("facebook", { scope: ["email"] })
+  );
+
+  app.get("/api/auth/facebook/callback",
+    passport.authenticate("facebook", { failureRedirect: "/login" }),
+    (req, res) => {
+      res.redirect("/");
+    }
+  );
 
   app.get("/api/logout", (req, res) => {
     req.logout(() => {

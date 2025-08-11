@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
-import { Search } from "lucide-react";
+import { SocialAuth } from "@/components/SocialAuth";
+import { Search, UserPlus } from "lucide-react";
 
 interface ZipCodeData {
   zipCode: string;
@@ -122,6 +123,22 @@ export default function Landing() {
               <h3 className="text-xl font-semibold text-neutral-800 mb-2">Flexible Options</h3>
               <p className="text-neutral-600">Choose from in-person or virtual sessions that fit your schedule</p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Authentication Section */}
+      <section className="py-16 bg-white">
+        <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-md mx-auto">
+            <div className="text-center mb-8">
+              <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <UserPlus className="h-8 w-8 text-primary" />
+              </div>
+              <h2 className="text-2xl font-bold text-neutral-800 mb-2">Get Started Today</h2>
+              <p className="text-neutral-600">Join thousands who have found their perfect fitness coach</p>
+            </div>
+            <SocialAuth />
           </div>
         </div>
       </section>

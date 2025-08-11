@@ -23,6 +23,7 @@ export const users = pgTable("users", {
   profileImageUrl: varchar("profile_image_url"),
   name: text("name"), // Keep for compatibility
   role: text("role").notNull().default("USER"), // USER | COACH | ADMIN
+  provider: varchar("provider").default("replit"), // replit, google, facebook
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
