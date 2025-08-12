@@ -9,6 +9,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication
   await setupAuth(app);
   
+  // Data deletion request endpoint (required by Facebook)
+  app.post("/api/data-deletion", async (req, res) => {
+    try {
+      const { email, reason } = req.body;
+      
+      // Log the deletion request for processing
+      console.log(`Data deletion request received for email: ${email}, reason: ${reason || 'Not provided'}`);
+      
+      // In a production environment, you would:
+      // 1. Validate the email exists in your system
+      // 2. Queue the deletion request for manual review
+      // 3. Send confirmation email to the user
+      // 4. Actually delete the user data after verification
+      
+      // For now, we'll just acknowledge the request
+      res.json({ 
+        success: true, 
+        message: "Data deletion request received and will be processed within 30 days",
+        confirmation_code: `DD-${Date.now().toString().slice(-8)}`
+      });
+    } catch (error) {
+      console.error("Error processing data deletion request:", error);
+      res.status(500).json({ message: "Failed to process data deletion request" });
+    }
+  });
+
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {

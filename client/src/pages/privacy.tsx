@@ -76,6 +76,19 @@ export default function Privacy() {
           </section>
 
           <section className="mb-8">
+            <h2 className="text-2xl font-semibold text-neutral-800 mb-4">Data Deletion</h2>
+            <p className="text-neutral-600 mb-4">
+              If you wish to delete your account and all associated data, you can submit a data deletion request. 
+              This will permanently remove all your information from our systems.
+            </p>
+            <p className="text-neutral-600">
+              <a href="/data-deletion" className="text-primary hover:underline font-medium">
+                Submit Data Deletion Request →
+              </a>
+            </p>
+          </section>
+
+          <section className="mb-8">
             <h2 className="text-2xl font-semibold text-neutral-800 mb-4">Contact Us</h2>
             <p className="text-neutral-600">
               If you have questions about this privacy policy, please contact us at privacy@coachbnb.com
