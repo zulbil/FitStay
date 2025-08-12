@@ -52,7 +52,7 @@ export default function Footer() {
               <li><a href="#" className="hover:text-primary">Help Center</a></li>
               <li><a href="#" className="hover:text-primary">Contact Us</a></li>
               <li><a href="#" className="hover:text-primary">Trust & Safety</a></li>
-              <li><a href="#" className="hover:text-primary">Terms of Service</a></li>
+              <li><Link href="/terms"><a className="hover:text-primary">Terms of Service</a></Link></li>
             </ul>
           </div>
         </div>
@@ -60,8 +60,8 @@ export default function Footer() {
         <div className="border-t border-neutral-200 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-neutral-600 text-sm">© 2024 CoachBnB. All rights reserved.</p>
           <div className="flex space-x-6 mt-4 md:mt-0">
-            <a href="#" className="text-neutral-600 text-sm hover:text-primary">Privacy Policy</a>
-            <a href="#" className="text-neutral-600 text-sm hover:text-primary">Terms of Service</a>
+            <Link href="/privacy"><a className="text-neutral-600 text-sm hover:text-primary">Privacy Policy</a></Link>
+            <Link href="/terms"><a className="text-neutral-600 text-sm hover:text-primary">Terms of Service</a></Link>
             <a href="#" className="text-neutral-600 text-sm hover:text-primary">Cookie Policy</a>
           </div>
         </div>

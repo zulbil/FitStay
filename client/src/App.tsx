@@ -11,6 +11,8 @@ import CoachProfile from "@/pages/coach-profile";
 import ForCoaches from "@/pages/for-coaches";
 import CoachOnboarding from "@/pages/coach-onboarding";
 import AdminPage from "@/pages/admin";
+import Privacy from "@/pages/privacy";
+import Terms from "@/pages/terms.tsx";
 import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import { useAuth } from "@/hooks/useAuth";
@@ -30,6 +32,8 @@ function Router() {
           <Route path="/for-coaches" component={ForCoaches} />
           <Route path="/become-a-coach" component={CoachOnboarding} />
           <Route path="/admin" component={AdminPage} />
+          <Route path="/privacy" component={Privacy} />
+          <Route path="/terms" component={Terms} />
           <Route component={NotFound} />
         </Switch>
       </main>
