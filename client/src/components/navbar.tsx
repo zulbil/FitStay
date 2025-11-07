@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { Menu, User } from "lucide-react";
+import { Menu, User, Search, Dumbbell } from "lucide-react";
 
 export default function Navbar() {
   const { user, isAuthenticated } = useAuth();
@@ -11,55 +11,84 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 bg-white border-b border-neutral-200 shadow-sm">
-      <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-lg border-b border-neutral-200 shadow-sm" data-testid="navbar">
+      <div className="container-max">
+        <div className="flex justify-between items-center h-20">
+          {/* Logo */}
           <div className="flex items-center">
             <Link href="/">
-              <h1 className="text-2xl font-bold text-primary cursor-pointer">CoachBnB</h1>
+              <div className="flex items-center gap-2 cursor-pointer group" data-testid="link-home">
+                <div className="w-10 h-10 gradient-primary rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg transition-shadow">
+                  <Dumbbell className="h-6 w-6 text-white" />
+                </div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  CoachBnB
+                </h1>
+              </div>
             </Link>
           </div>
           
+          {/* Navigation Links */}
           <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-8">
-              <Link href="/search" className="text-neutral-800 hover:text-primary px-3 py-2 text-sm font-medium">
-                Find Coaches
+            <div className="flex items-center space-x-1">
+              <Link href="/search">
+                <div className="flex items-center gap-2 text-neutral-700 hover:text-primary px-4 py-2 rounded-lg hover:bg-neutral-50 text-sm font-semibold transition-all cursor-pointer" data-testid="link-search">
+                  <Search className="h-4 w-4" />
+                  Find Coaches
+                </div>
               </Link>
-              <Link href="/for-coaches" className="text-neutral-600 hover:text-primary px-3 py-2 text-sm font-medium">
-                For Coaches
+              <Link href="/for-coaches">
+                <div className="text-neutral-600 hover:text-primary px-4 py-2 rounded-lg hover:bg-neutral-50 text-sm font-medium transition-all cursor-pointer" data-testid="link-for-coaches">
+                  For Coaches
+                </div>
               </Link>
-              <span className="text-neutral-600 hover:text-primary px-3 py-2 text-sm font-medium cursor-pointer">Help</span>
+              <span className="text-neutral-600 hover:text-primary px-4 py-2 rounded-lg hover:bg-neutral-50 text-sm font-medium cursor-pointer transition-all">
+                Help
+              </span>
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
+          {/* Auth Section */}
+          <div className="flex items-center gap-3">
             <Button 
               variant="ghost" 
-              className="text-neutral-600 hover:text-primary"
+              className="hidden lg:flex text-neutral-700 hover:text-primary hover:bg-neutral-50 font-semibold"
               onClick={() => window.location.href = "/become-a-coach"}
+              data-testid="button-become-coach"
             >
               Become a Coach
             </Button>
             {isAuthenticated ? (
-              <div className="flex items-center space-x-4">
-                <span className="text-sm text-neutral-600">Hello, {(user as any)?.name || (user as any)?.firstName || "User"}</span>
-                <div className="flex items-center space-x-2 border border-neutral-200 rounded-full px-4 py-2 hover:shadow-md transition-shadow cursor-pointer" onClick={handleLogout}>
-                  <Menu className="h-4 w-4 text-neutral-600" />
+              <div className="flex items-center gap-3">
+                <span className="hidden sm:block text-sm font-medium text-neutral-700" data-testid="text-user-greeting">
+                  Hello, {(user as any)?.name || (user as any)?.firstName || "User"}
+                </span>
+                <div 
+                  className="flex items-center gap-2 border-2 border-neutral-200 rounded-full pl-3 pr-2 py-1.5 hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer group" 
+                  onClick={handleLogout}
+                  data-testid="button-user-menu"
+                >
+                  <Menu className="h-4 w-4 text-neutral-600 group-hover:text-primary" />
                   {(user as any)?.profileImageUrl ? (
                     <img 
                       src={(user as any).profileImageUrl} 
                       alt="Profile" 
-                      className="w-8 h-8 rounded-full object-cover"
+                      className="w-9 h-9 rounded-full object-cover ring-2 ring-white"
+                      data-testid="img-user-avatar"
                     />
                   ) : (
-                    <div className="w-8 h-8 bg-neutral-600 rounded-full flex items-center justify-center">
-                      <User className="h-4 w-4 text-white" />
+                    <div className="w-9 h-9 gradient-primary rounded-full flex items-center justify-center shadow-md">
+                      <User className="h-5 w-5 text-white" />
                     </div>
                   )}
                 </div>
               </div>
             ) : (
-              <Button onClick={() => window.location.href = "/api/login"} className="bg-primary hover:bg-primary/90">
+              <Button 
+                onClick={() => window.location.href = "/api/login"} 
+                className="gradient-primary text-white font-semibold px-6 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all"
+                data-testid="button-login"
+              >
                 Log In
               </Button>
             )}
