@@ -151,7 +151,7 @@ export default function AdminPage() {
           variant: "destructive",
         });
         setTimeout(() => {
-          window.location.href = "/api/login";
+          window.location.href = "/login";
         }, 500);
         return;
       }
@@ -177,7 +177,7 @@ export default function AdminPage() {
     onError: (error) => {
       if (isUnauthorizedError(error)) {
         toast({ title: "Unauthorized", description: "You are logged out. Logging in again...", variant: "destructive" });
-        setTimeout(() => { window.location.href = "/api/login"; }, 500);
+        setTimeout(() => { window.location.href = "/login"; }, 500);
         return;
       }
       toast({ title: "Error", description: "Failed to delete coach", variant: "destructive" });
@@ -201,7 +201,7 @@ export default function AdminPage() {
     onError: (error) => {
       if (isUnauthorizedError(error)) {
         toast({ title: "Unauthorized", description: "You are logged out. Logging in again...", variant: "destructive" });
-        setTimeout(() => { window.location.href = "/api/login"; }, 500);
+        setTimeout(() => { window.location.href = "/login"; }, 500);
         return;
       }
       toast({ title: "Error", description: "Failed to create specialty", variant: "destructive" });
@@ -221,7 +221,7 @@ export default function AdminPage() {
     onError: (error) => {
       if (isUnauthorizedError(error)) {
         toast({ title: "Unauthorized", description: "You are logged out. Logging in again...", variant: "destructive" });
-        setTimeout(() => { window.location.href = "/api/login"; }, 500);
+        setTimeout(() => { window.location.href = "/login"; }, 500);
         return;
       }
       toast({ title: "Error", description: "Failed to delete specialty", variant: "destructive" });
@@ -241,7 +241,7 @@ export default function AdminPage() {
             <CardDescription>Please log in to access the admin panel</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={() => window.location.href = "/api/login"} className="w-full">
+            <Button onClick={() => window.location.href = "/login"} className="w-full">
               Log In
             </Button>
           </CardContent>

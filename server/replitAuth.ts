@@ -2,6 +2,7 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as FacebookStrategy } from "passport-facebook";
 // @ts-ignore - passport-apple doesn't have TypeScript definitions
 import { Strategy as AppleStrategy } from "passport-apple";
+import jwt from "jsonwebtoken";
 
 import passport from "passport";
 import session from "express-session";
@@ -122,13 +123,16 @@ export async function setupAuth(app: Express) {
       passReqToCallback: true
     }, async (req: any, accessToken: any, refreshToken: any, idToken: any, profile: any, done: any) => {
       try {
+        // Decode the ID token to get email (Apple only sends email in token, not profile on subsequent logins)
+        const decodedToken: any = jwt.decode(idToken, { json: true });
+        
         // Apple sends user info only on first login in req.body.user
         const firstTimeUser = req.body.user ? JSON.parse(req.body.user) : null;
         
         const user = {
           claims: {
-            sub: profile.id || profile.sub,
-            email: profile.email,
+            sub: decodedToken?.sub || profile.id || profile.sub,
+            email: decodedToken?.email || profile.email,
             given_name: firstTimeUser?.name?.firstName,
             family_name: firstTimeUser?.name?.lastName,
           },

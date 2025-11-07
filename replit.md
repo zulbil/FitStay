@@ -2,7 +2,7 @@
 
 ## Overview
 
-CoachBnB is a comprehensive full-stack fitness coaching marketplace that connects certified fitness professionals with clients seeking personal training services. Built as an Airbnb-style platform, it features a robust database of 40+ professional coaches with multiple photos, detailed bios, client testimonials, and location-based services. The platform includes Replit authentication, Google Maps integration for location-based coach discovery, advanced filtering with AND logic for specialties, and both virtual and in-person training options.
+CoachBnB is a comprehensive full-stack fitness coaching marketplace that connects certified fitness professionals with clients seeking personal training services. Built as an Airbnb-style platform, it features a robust database of 40+ professional coaches with multiple photos, detailed bios, client testimonials, and location-based services. The platform includes OAuth authentication (Google, Facebook, Apple), Google Maps integration for location-based coach discovery, advanced filtering with AND logic for specialties, and both virtual and in-person training options.
 
 ## User Preferences
 
@@ -61,11 +61,15 @@ Input validation is handled using Zod schemas integrated with Drizzle ORM for ty
 
 ## Recent Updates (January 2025)
 
-### Authentication & User Management
-- Implemented complete Replit authentication system with session management
+### Authentication & User Management (Updated November 2025)
+- Removed Replit authentication and replaced with industry-standard OAuth providers
+- Implemented OAuth 2.0 authentication with three providers: Google, Facebook, and Apple Sign In
+- Apple OAuth includes proper POST callback handling and first-time user data capture
+- Simplified authentication middleware by removing OIDC token refresh logic
 - Added user profiles with role-based access (USER/COACH)
 - Created landing page for non-authenticated users
 - Updated navbar with authentication states and user profile display
+- All login redirects now point to dedicated /login page
 
 ### Location & Maps Integration
 - Integrated Google Maps JavaScript API with interactive markers

@@ -24,6 +24,7 @@ export function SocialAuth({ className = "" }: SocialAuthProps) {
         onClick={handleGoogleLogin}
         variant="outline"
         className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+        data-testid="button-google-login"
       >
         <FaGoogle className="text-red-500 text-lg" />
         <span className="text-gray-700 font-medium">Continue with Google</span>

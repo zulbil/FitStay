@@ -73,7 +73,7 @@ export default function CoachOnboarding() {
   // Redirect if not authenticated
   useEffect(() => {
     if (!isAuthenticated && !applicationLoading) {
-      window.location.href = "/api/login";
+      window.location.href = "/login";
     }
   }, [isAuthenticated, applicationLoading]);
 

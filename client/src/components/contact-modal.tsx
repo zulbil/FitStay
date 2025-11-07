@@ -69,7 +69,7 @@ export default function ContactModal({ coach, children }: ContactModalProps) {
   const handleTriggerClick = (e: React.MouseEvent) => {
     if (!isAuthenticated) {
       e.preventDefault();
-      window.location.href = "/api/login";
+      window.location.href = "/login";
       return;
     }
     setOpen(true);
