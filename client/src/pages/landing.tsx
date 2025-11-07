@@ -37,10 +37,10 @@ export default function Landing() {
     queryKey: ['/api/coaches'],
   });
 
-  // Show first 6 coaches (or filter by ratingAvg >= 4.8 if coaches have reviews)
+  // Show first 3 coaches for mosaic design (or filter by ratingAvg >= 4.8 if coaches have reviews)
   const featuredCoaches = coachesData?.coaches
     ?.filter(c => !c.ratingAvg || c.ratingAvg >= 4.8)
-    .slice(0, 6) || [];
+    .slice(0, 3) || [];
   
   // Hero slider with coach background images
   const [emblaRef, emblaApi] = useEmblaCarousel(
@@ -85,16 +85,14 @@ export default function Landing() {
     window.location.href = "/api/login";
   };
 
-  // Hero background images - rotating coach photos
-  const heroImages = featuredCoaches.length > 0 
-    ? featuredCoaches.slice(0, 5).map(c => c.photos[0])
-    : [
-        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1920&h=1080&fit=crop",
-        "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=1920&h=1080&fit=crop",
-        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1920&h=1080&fit=crop",
-        "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1920&h=1080&fit=crop",
-        "https://images.unsplash.com/photo-1549476464-37392f717541?w=1920&h=1080&fit=crop"
-      ];
+  // Hero background images - fixed fitness photos
+  const heroImages = [
+    "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1920&h=1080&fit=crop",
+    "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=1920&h=1080&fit=crop",
+    "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1920&h=1080&fit=crop",
+    "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1920&h=1080&fit=crop",
+    "https://images.unsplash.com/photo-1549476464-37392f717541?w=1920&h=1080&fit=crop"
+  ];
 
   const testimonials = [
     {
@@ -303,14 +301,23 @@ export default function Landing() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {featuredCoaches.map((coach) => (
-                <Link key={coach.id} href={`/coach/${coach.slug}`}>
+            {/* Mosaic Grid Layout - 1 large + 2 stacked */}
+            <div className="grid md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+              {featuredCoaches.map((coach, index) => (
+                <Link 
+                  key={coach.id} 
+                  href={`/coach/${coach.slug}`}
+                  className={index === 0 ? "md:row-span-2" : ""}
+                >
                   <div 
-                    className="bg-white rounded-2xl shadow-lg overflow-hidden hover-lift cursor-pointer group"
+                    className={`bg-white rounded-2xl shadow-lg overflow-hidden hover-lift cursor-pointer group h-full ${
+                      index === 0 ? 'md:min-h-[700px]' : 'md:min-h-[340px]'
+                    }`}
                     data-testid={`featured-coach-${coach.id}`}
                   >
-                    <div className="relative h-64 overflow-hidden">
+                    <div className={`relative overflow-hidden ${
+                      index === 0 ? 'h-[400px] md:h-[450px]' : 'h-64'
+                    }`}>
                       <img 
                         src={coach.photos[0]} 
                         alt={slugToName(coach.slug)}
@@ -323,7 +330,9 @@ export default function Landing() {
                       </div>
                     </div>
                     <div className="p-6">
-                      <h3 className="text-2xl font-bold text-neutral-900 mb-2">{slugToName(coach.slug)}</h3>
+                      <h3 className={`font-bold text-neutral-900 mb-2 ${
+                        index === 0 ? 'text-3xl' : 'text-2xl'
+                      }`}>{slugToName(coach.slug)}</h3>
                       <p className="text-neutral-600 mb-4 flex items-center gap-2">
                         <MapPin className="w-4 h-4 text-primary" />
                         {coach.city}, {coach.state}

@@ -125,8 +125,8 @@ Input validation is handled using Zod schemas integrated with Drizzle ORM for ty
 - End-to-end testing confirmed all design enhancements working correctly
 
 ### Landing Page Redesign (November 2025)
-- Implemented dynamic hero section with background image carousel
-  - Embla carousel with autoplay (4-second intervals) rotating through coach photos
+- Implemented hero section with background image carousel
+  - Embla carousel with autoplay (4-second intervals) using fixed Unsplash fitness stock photos
   - Dark gradient overlay for text readability
   - Manual navigation via carousel indicator dots
   - Full-height responsive design (700-800px)
@@ -135,11 +135,12 @@ Input validation is handled using Zod schemas integrated with Drizzle ORM for ty
   - Compelling headline: "Find Your Perfect Fitness Coach" with gradient text
   - Prominent ZIP code search with Google Places autocomplete
   - Three trust indicators with glassmorphism styling (Verified Credentials, Authentic Reviews, Secure Platform)
-- Featured coaches carousel showcasing top-rated trainers
-  - Grid layout displaying coaches with rating >= 4.8
+- Featured coaches section showcasing top-rated trainers
+  - Mosaic layout displaying exactly 3 coaches with rating >= 4.8 or new coaches
+  - First coach card is large and spans 2 rows, with 2 smaller cards stacked on the right
   - Each coach card wrapped in proper Link component for SEO and accessibility
   - Hover effects with image zoom and button transitions
-  - Shows photo, rating, location, specialties, and pricing
+  - Shows photo, rating badge (or "New"), location, specialties, and pricing
 - Testimonials section with client success stories
   - Three featured testimonials with 5-star ratings
   - Client photos, names, locations, and authentic quotes
