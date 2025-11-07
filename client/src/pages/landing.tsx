@@ -301,23 +301,14 @@ export default function Landing() {
               </p>
             </div>
 
-            {/* Mosaic Grid Layout - 1 large + 2 stacked */}
-            <div className="grid md:grid-cols-2 gap-6 max-w-6xl mx-auto">
-              {featuredCoaches.map((coach, index) => (
-                <Link 
-                  key={coach.id} 
-                  href={`/coach/${coach.slug}`}
-                  className={index === 0 ? "md:row-span-2" : ""}
-                >
+            <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+              {featuredCoaches.map((coach) => (
+                <Link key={coach.id} href={`/coach/${coach.slug}`} className="h-full">
                   <div 
-                    className={`bg-white rounded-2xl shadow-lg overflow-hidden hover-lift cursor-pointer group h-full ${
-                      index === 0 ? 'md:min-h-[700px]' : 'md:min-h-[340px]'
-                    }`}
+                    className="bg-white rounded-2xl shadow-lg overflow-hidden hover-lift cursor-pointer group h-full flex flex-col"
                     data-testid={`featured-coach-${coach.id}`}
                   >
-                    <div className={`relative overflow-hidden ${
-                      index === 0 ? 'h-[400px] md:h-[450px]' : 'h-64'
-                    }`}>
+                    <div className="relative h-64 overflow-hidden">
                       <img 
                         src={coach.photos[0]} 
                         alt={slugToName(coach.slug)}
@@ -329,25 +320,23 @@ export default function Landing() {
                         <span className="font-bold text-sm">{(coach.ratingAvg && coach.ratingAvg > 0) ? coach.ratingAvg.toFixed(1) : 'New'}</span>
                       </div>
                     </div>
-                    <div className="p-6">
-                      <h3 className={`font-bold text-neutral-900 mb-2 ${
-                        index === 0 ? 'text-3xl' : 'text-2xl'
-                      }`}>{slugToName(coach.slug)}</h3>
+                    <div className="p-6 flex flex-col flex-grow">
+                      <h3 className="text-2xl font-bold text-neutral-900 mb-2">{slugToName(coach.slug)}</h3>
                       <p className="text-neutral-600 mb-4 flex items-center gap-2">
                         <MapPin className="w-4 h-4 text-primary" />
                         {coach.city}, {coach.state}
                       </p>
-                      <div className="flex flex-wrap gap-2 mb-4">
+                      <div className="flex flex-wrap gap-2 mb-4 flex-grow">
                         {coach.specialties.slice(0, 3).map((specialty) => (
                           <span 
                             key={specialty}
-                            className="bg-gradient-to-r from-secondary/10 to-primary/10 text-neutral-700 px-3 py-1 rounded-full text-sm font-medium"
+                            className="bg-gradient-to-r from-secondary/10 to-primary/10 text-neutral-700 px-3 py-1 rounded-full text-sm font-medium h-fit"
                           >
                             {specialty}
                           </span>
                         ))}
                       </div>
-                      <div className="flex items-center justify-between pt-4 border-t border-neutral-200">
+                      <div className="flex items-center justify-between pt-4 border-t border-neutral-200 mt-auto">
                         <div>
                           <span className="text-2xl font-bold text-primary">${coach.pricePerHour}</span>
                           <span className="text-neutral-500 text-sm">/hour</span>

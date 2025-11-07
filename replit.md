@@ -136,8 +136,8 @@ Input validation is handled using Zod schemas integrated with Drizzle ORM for ty
   - Prominent ZIP code search with Google Places autocomplete
   - Three trust indicators with glassmorphism styling (Verified Credentials, Authentic Reviews, Secure Platform)
 - Featured coaches section showcasing top-rated trainers
-  - Mosaic layout displaying exactly 3 coaches with rating >= 4.8 or new coaches
-  - First coach card is large and spans 2 rows, with 2 smaller cards stacked on the right
+  - Simple 3-column grid layout displaying exactly 3 coaches with rating >= 4.8 or new coaches
+  - All cards are equal size with consistent styling
   - Each coach card wrapped in proper Link component for SEO and accessibility
   - Hover effects with image zoom and button transitions
   - Shows photo, rating badge (or "New"), location, specialties, and pricing
