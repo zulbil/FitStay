@@ -33,6 +33,9 @@ export default function Login() {
   const { isAuthenticated } = useAuth();
   const { toast } = useToast();
   
+  // Form view toggle state
+  const [showSignup, setShowSignup] = useState(false);
+  
   // Login form state
   const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -199,194 +202,205 @@ export default function Login() {
               </TabsContent>
               
               <TabsContent value="traditional">
-                <Tabs defaultValue="login" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 mb-6">
-                    <TabsTrigger value="login" data-testid="tab-login">Login</TabsTrigger>
-                    <TabsTrigger value="signup" data-testid="tab-signup">Sign Up</TabsTrigger>
-                  </TabsList>
-                  
-                  <TabsContent value="login">
-                    <form onSubmit={handleLogin} className="space-y-4">
-                      <div>
-                        <label htmlFor="login-username" className="block text-sm font-medium text-neutral-700 mb-2">
-                          Username
-                        </label>
-                        <div className="relative">
-                          <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
-                          <Input
-                            id="login-username"
-                            type="text"
-                            placeholder="Enter your username"
-                            value={loginUsername}
-                            onChange={(e) => setLoginUsername(e.target.value)}
-                            className={`pl-10 ${loginErrors.username ? "border-red-500" : ""}`}
-                            data-testid="input-login-username"
-                          />
-                        </div>
-                        {loginErrors.username && (
-                          <p className="text-sm text-red-500 mt-1">{loginErrors.username}</p>
-                        )}
+                {/* Toggle buttons for Login/Signup */}
+                <div className="flex gap-2 mb-6">
+                  <Button
+                    type="button"
+                    onClick={() => setShowSignup(false)}
+                    className={`flex-1 py-2 ${!showSignup ? "gradient-primary text-white" : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"}`}
+                    data-testid="tab-login"
+                  >
+                    Login
+                  </Button>
+                  <Button
+                    type="button"
+                    onClick={() => setShowSignup(true)}
+                    className={`flex-1 py-2 ${showSignup ? "gradient-primary text-white" : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"}`}
+                    data-testid="tab-signup"
+                  >
+                    Sign Up
+                  </Button>
+                </div>
+                
+                {!showSignup ? (
+                  <form onSubmit={handleLogin} className="space-y-4">
+                    <div>
+                      <label htmlFor="login-username" className="block text-sm font-medium text-neutral-700 mb-2">
+                        Username
+                      </label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
+                        <Input
+                          id="login-username"
+                          type="text"
+                          placeholder="Enter your username"
+                          value={loginUsername}
+                          onChange={(e) => setLoginUsername(e.target.value)}
+                          className={`pl-10 ${loginErrors.username ? "border-red-500" : ""}`}
+                          data-testid="input-login-username"
+                        />
                       </div>
-                      
-                      <div>
-                        <label htmlFor="login-password" className="block text-sm font-medium text-neutral-700 mb-2">
-                          Password
-                        </label>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
-                          <Input
-                            id="login-password"
-                            type="password"
-                            placeholder="Enter your password"
-                            value={loginPassword}
-                            onChange={(e) => setLoginPassword(e.target.value)}
-                            className={`pl-10 ${loginErrors.password ? "border-red-500" : ""}`}
-                            data-testid="input-login-password"
-                          />
-                        </div>
-                        {loginErrors.password && (
-                          <p className="text-sm text-red-500 mt-1">{loginErrors.password}</p>
-                        )}
+                      {loginErrors.username && (
+                        <p className="text-sm text-red-500 mt-1">{loginErrors.username}</p>
+                      )}
+                    </div>
+                    
+                    <div>
+                      <label htmlFor="login-password" className="block text-sm font-medium text-neutral-700 mb-2">
+                        Password
+                      </label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
+                        <Input
+                          id="login-password"
+                          type="password"
+                          placeholder="Enter your password"
+                          value={loginPassword}
+                          onChange={(e) => setLoginPassword(e.target.value)}
+                          className={`pl-10 ${loginErrors.password ? "border-red-500" : ""}`}
+                          data-testid="input-login-password"
+                        />
                       </div>
-                      
-                      <Button
-                        type="submit"
-                        className="w-full gradient-primary text-white font-semibold py-3 hover:opacity-90 transition-opacity"
-                        disabled={loginMutation.isPending}
-                        data-testid="button-login-submit"
-                      >
-                        {loginMutation.isPending ? "Logging in..." : "Log In"}
-                      </Button>
-                    </form>
-                  </TabsContent>
-                  
-                  <TabsContent value="signup">
-                    <form onSubmit={handleSignup} className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label htmlFor="signup-firstname" className="block text-sm font-medium text-neutral-700 mb-2">
-                            First Name
-                          </label>
-                          <Input
-                            id="signup-firstname"
-                            type="text"
-                            placeholder="John"
-                            value={signupFirstName}
-                            onChange={(e) => setSignupFirstName(e.target.value)}
-                            data-testid="input-signup-firstname"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label htmlFor="signup-lastname" className="block text-sm font-medium text-neutral-700 mb-2">
-                            Last Name
-                          </label>
-                          <Input
-                            id="signup-lastname"
-                            type="text"
-                            placeholder="Doe"
-                            value={signupLastName}
-                            onChange={(e) => setSignupLastName(e.target.value)}
-                            data-testid="input-signup-lastname"
-                          />
-                        </div>
+                      {loginErrors.password && (
+                        <p className="text-sm text-red-500 mt-1">{loginErrors.password}</p>
+                      )}
+                    </div>
+                    
+                    <Button
+                      type="submit"
+                      className="w-full gradient-primary text-white font-semibold py-3 hover:opacity-90 transition-opacity"
+                      disabled={loginMutation.isPending}
+                      data-testid="button-login-submit"
+                    >
+                      {loginMutation.isPending ? "Logging in..." : "Log In"}
+                    </Button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleSignup} className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label htmlFor="signup-firstname" className="block text-sm font-medium text-neutral-700 mb-2">
+                          First Name
+                        </label>
+                        <Input
+                          id="signup-firstname"
+                          type="text"
+                          placeholder="John"
+                          value={signupFirstName}
+                          onChange={(e) => setSignupFirstName(e.target.value)}
+                          data-testid="input-signup-firstname"
+                        />
                       </div>
                       
                       <div>
-                        <label htmlFor="signup-username" className="block text-sm font-medium text-neutral-700 mb-2">
-                          Username *
+                        <label htmlFor="signup-lastname" className="block text-sm font-medium text-neutral-700 mb-2">
+                          Last Name
                         </label>
-                        <div className="relative">
-                          <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
-                          <Input
-                            id="signup-username"
-                            type="text"
-                            placeholder="Choose a username"
-                            value={signupUsername}
-                            onChange={(e) => setSignupUsername(e.target.value)}
-                            className={`pl-10 ${signupErrors.username ? "border-red-500" : ""}`}
-                            data-testid="input-signup-username"
-                          />
-                        </div>
-                        {signupErrors.username && (
-                          <p className="text-sm text-red-500 mt-1">{signupErrors.username}</p>
-                        )}
+                        <Input
+                          id="signup-lastname"
+                          type="text"
+                          placeholder="Doe"
+                          value={signupLastName}
+                          onChange={(e) => setSignupLastName(e.target.value)}
+                          data-testid="input-signup-lastname"
+                        />
                       </div>
-                      
-                      <div>
-                        <label htmlFor="signup-email" className="block text-sm font-medium text-neutral-700 mb-2">
-                          Email *
-                        </label>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
-                          <Input
-                            id="signup-email"
-                            type="email"
-                            placeholder="your@email.com"
-                            value={signupEmail}
-                            onChange={(e) => setSignupEmail(e.target.value)}
-                            className={`pl-10 ${signupErrors.email ? "border-red-500" : ""}`}
-                            data-testid="input-signup-email"
-                          />
-                        </div>
-                        {signupErrors.email && (
-                          <p className="text-sm text-red-500 mt-1">{signupErrors.email}</p>
-                        )}
+                    </div>
+                    
+                    <div>
+                      <label htmlFor="signup-username" className="block text-sm font-medium text-neutral-700 mb-2">
+                        Username *
+                      </label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
+                        <Input
+                          id="signup-username"
+                          type="text"
+                          placeholder="Choose a username"
+                          value={signupUsername}
+                          onChange={(e) => setSignupUsername(e.target.value)}
+                          className={`pl-10 ${signupErrors.username ? "border-red-500" : ""}`}
+                          data-testid="input-signup-username"
+                        />
                       </div>
-                      
-                      <div>
-                        <label htmlFor="signup-password" className="block text-sm font-medium text-neutral-700 mb-2">
-                          Password *
-                        </label>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
-                          <Input
-                            id="signup-password"
-                            type="password"
-                            placeholder="Create a password"
-                            value={signupPassword}
-                            onChange={(e) => setSignupPassword(e.target.value)}
-                            className={`pl-10 ${signupErrors.password ? "border-red-500" : ""}`}
-                            data-testid="input-signup-password"
-                          />
-                        </div>
-                        {signupErrors.password && (
-                          <p className="text-sm text-red-500 mt-1">{signupErrors.password}</p>
-                        )}
+                      {signupErrors.username && (
+                        <p className="text-sm text-red-500 mt-1" data-testid="error-signup-username">{signupErrors.username}</p>
+                      )}
+                    </div>
+                    
+                    <div>
+                      <label htmlFor="signup-email" className="block text-sm font-medium text-neutral-700 mb-2">
+                        Email *
+                      </label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
+                        <Input
+                          id="signup-email"
+                          type="email"
+                          placeholder="your@email.com"
+                          value={signupEmail}
+                          onChange={(e) => setSignupEmail(e.target.value)}
+                          className={`pl-10 ${signupErrors.email ? "border-red-500" : ""}`}
+                          data-testid="input-signup-email"
+                        />
                       </div>
-                      
-                      <div>
-                        <label htmlFor="signup-confirm-password" className="block text-sm font-medium text-neutral-700 mb-2">
-                          Confirm Password *
-                        </label>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
-                          <Input
-                            id="signup-confirm-password"
-                            type="password"
-                            placeholder="Confirm your password"
-                            value={signupConfirmPassword}
-                            onChange={(e) => setSignupConfirmPassword(e.target.value)}
-                            className={`pl-10 ${signupErrors.confirmPassword ? "border-red-500" : ""}`}
-                            data-testid="input-signup-confirm-password"
-                          />
-                        </div>
-                        {signupErrors.confirmPassword && (
-                          <p className="text-sm text-red-500 mt-1">{signupErrors.confirmPassword}</p>
-                        )}
+                      {signupErrors.email && (
+                        <p className="text-sm text-red-500 mt-1" data-testid="error-signup-email">{signupErrors.email}</p>
+                      )}
+                    </div>
+                    
+                    <div>
+                      <label htmlFor="signup-password" className="block text-sm font-medium text-neutral-700 mb-2">
+                        Password *
+                      </label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
+                        <Input
+                          id="signup-password"
+                          type="password"
+                          placeholder="Create a password"
+                          value={signupPassword}
+                          onChange={(e) => setSignupPassword(e.target.value)}
+                          className={`pl-10 ${signupErrors.password ? "border-red-500" : ""}`}
+                          data-testid="input-signup-password"
+                        />
                       </div>
-                      
-                      <Button
-                        type="submit"
-                        className="w-full gradient-primary text-white font-semibold py-3 hover:opacity-90 transition-opacity"
-                        disabled={signupMutation.isPending}
-                        data-testid="button-signup-submit"
-                      >
-                        {signupMutation.isPending ? "Creating account..." : "Create Account"}
-                      </Button>
-                    </form>
-                  </TabsContent>
-                </Tabs>
+                      {signupErrors.password && (
+                        <p className="text-sm text-red-500 mt-1" data-testid="error-signup-password">{signupErrors.password}</p>
+                      )}
+                    </div>
+                    
+                    <div>
+                      <label htmlFor="signup-confirm-password" className="block text-sm font-medium text-neutral-700 mb-2">
+                        Confirm Password *
+                      </label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
+                        <Input
+                          id="signup-confirm-password"
+                          type="password"
+                          placeholder="Confirm your password"
+                          value={signupConfirmPassword}
+                          onChange={(e) => setSignupConfirmPassword(e.target.value)}
+                          className={`pl-10 ${signupErrors.confirmPassword ? "border-red-500" : ""}`}
+                          data-testid="input-signup-confirm-password"
+                        />
+                      </div>
+                      {signupErrors.confirmPassword && (
+                        <p className="text-sm text-red-500 mt-1" data-testid="error-signup-confirm-password">{signupErrors.confirmPassword}</p>
+                      )}
+                    </div>
+                    
+                    <Button
+                      type="submit"
+                      className="w-full gradient-primary text-white font-semibold py-3 hover:opacity-90 transition-opacity"
+                      disabled={signupMutation.isPending}
+                      data-testid="button-signup-submit"
+                    >
+                      {signupMutation.isPending ? "Creating account..." : "Create Account"}
+                    </Button>
+                  </form>
+                )}
               </TabsContent>
             </Tabs>
             
