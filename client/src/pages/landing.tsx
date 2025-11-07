@@ -1,9 +1,13 @@
-import { useState } from "react";
-import { useLocation } from "wouter";
+import { useState, useEffect, useCallback } from "react";
+import { useLocation, Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { AddressAutocomplete } from "@/components/AddressAutocomplete";
 import { SocialAuth } from "@/components/SocialAuth";
-import { Search, UserPlus } from "lucide-react";
+import { Search, UserPlus, Star, CheckCircle, Shield, Award, Users, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import useEmblaCarousel from 'embla-carousel-react';
+import Autoplay from 'embla-carousel-autoplay';
+import type { Coach } from "@shared/schema";
 
 interface ZipCodeData {
   zipCode: string;
@@ -19,6 +23,29 @@ export default function Landing() {
   const [, setLocation] = useLocation();
   const [searchLocation, setSearchLocation] = useState("");
   const [selectedLocationData, setSelectedLocationData] = useState<ZipCodeData | null>(null);
+
+  // Fetch featured coaches
+  const { data: coachesData, isLoading: coachesLoading } = useQuery<{ coaches: Coach[] }>({
+    queryKey: ['/api/coaches'],
+  });
+
+  const featuredCoaches = coachesData?.coaches?.filter(c => c.rating && c.rating >= 4.8).slice(0, 6) || [];
+  
+  // Hero slider with coach background images
+  const [emblaRef, emblaApi] = useEmblaCarousel(
+    { loop: true, duration: 30 },
+    [Autoplay({ delay: 4000, stopOnInteraction: false })]
+  );
+
+  const [selectedHeroIndex, setSelectedHeroIndex] = useState(0);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+
+    emblaApi.on('select', () => {
+      setSelectedHeroIndex(emblaApi.selectedScrollSnap());
+    });
+  }, [emblaApi]);
 
   const handleAddressSelected = (addressData: ZipCodeData) => {
     setSelectedLocationData(addressData);
@@ -47,83 +74,142 @@ export default function Landing() {
     window.location.href = "/api/login";
   };
 
+  // Hero background images - rotating coach photos
+  const heroImages = featuredCoaches.length > 0 
+    ? featuredCoaches.slice(0, 5).map(c => c.photos[0])
+    : [
+        "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1920&h=1080&fit=crop",
+        "https://images.unsplash.com/photo-1574680096145-d05b474e2155?w=1920&h=1080&fit=crop",
+        "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1920&h=1080&fit=crop",
+        "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1920&h=1080&fit=crop",
+        "https://images.unsplash.com/photo-1549476464-37392f717541?w=1920&h=1080&fit=crop"
+      ];
+
+  const testimonials = [
+    {
+      name: "Sarah Johnson",
+      location: "Austin, TX",
+      text: "I found my perfect trainer in just minutes! Lost 30 pounds in 3 months and feel amazing.",
+      rating: 5,
+      image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop"
+    },
+    {
+      name: "Michael Chen",
+      location: "San Francisco, CA",
+      text: "The virtual sessions are incredibly convenient. My coach is professional and motivating!",
+      rating: 5,
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop"
+    },
+    {
+      name: "Emily Rodriguez",
+      location: "Chicago, IL",
+      text: "Best investment in myself. The quality of coaches on this platform is outstanding.",
+      rating: 5,
+      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop"
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-neutral-50">
 
-      {/* Hero Section */}
-      <section className="relative py-20 lg:py-32 overflow-hidden" data-testid="hero-section">
-        {/* Background Decoration */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-primary/5 rounded-full blur-3xl -z-10" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-secondary/5 rounded-full blur-3xl -z-10" />
-        
-        <div className="container-max text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full mb-8 text-sm font-semibold text-primary" data-testid="badge-certified">
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-            </svg>
-            40+ Certified Fitness Professionals
-          </div>
-          
-          <h1 className="font-bold text-neutral-900 mb-6 leading-tight" data-testid="heading-hero">
-            Transform Your Fitness Journey with
-            <span className="text-gradient block mt-2">Expert Coaching</span>
-          </h1>
-          
-          <p className="text-xl lg:text-2xl text-neutral-600 mb-12 max-w-3xl mx-auto leading-relaxed" data-testid="text-hero-subtitle">
-            Connect with certified fitness coaches in your area or online. From HIIT to yoga, 
-            strength training to martial arts - find the perfect match for your goals.
-          </p>
-
-          {/* Search Form */}
-          <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-8" data-testid="form-hero-search">
-            <div className="flex flex-col sm:flex-row gap-3 p-3 bg-white rounded-2xl shadow-xl border border-neutral-200">
-              <div className="flex-1">
-                <AddressAutocomplete
-                  value={searchLocation}
-                  onChange={(value, addressData) => {
-                    setSearchLocation(value);
-                    if (addressData) {
-                      setSelectedLocationData(addressData);
-                    }
-                  }}
-                  onAddressSelected={handleAddressSelected}
-                  placeholder="Enter your location (city, state, or zip)"
-                  className="w-full border-0 focus:ring-0 text-lg"
+      {/* Hero Section with Background Slider */}
+      <section className="relative h-[700px] lg:h-[800px] overflow-hidden" data-testid="hero-section">
+        {/* Background Image Carousel */}
+        <div className="absolute inset-0" ref={emblaRef}>
+          <div className="flex h-full">
+            {heroImages.map((image, index) => (
+              <div key={index} className="flex-[0_0_100%] min-w-0 relative">
+                <img 
+                  src={image} 
+                  alt={`Hero ${index + 1}`}
+                  className="w-full h-full object-cover"
                 />
+                <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
               </div>
-              <Button 
-                type="submit" 
-                size="lg" 
-                className="bg-primary hover:bg-primary/90 text-white font-semibold px-8 py-6 rounded-xl shadow-lg hover:shadow-xl transition-all"
-                data-testid="button-search"
-              >
-                <Search className="w-5 h-5 mr-2" />
-                Find Coaches
-              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Content Overlay */}
+        <div className="relative h-full flex items-center justify-center">
+          <div className="container-max text-center px-4">
+            <div className="inline-flex items-center gap-2 px-6 py-3 bg-white/95 backdrop-blur-sm rounded-full mb-8 text-sm font-bold text-primary shadow-xl" data-testid="badge-certified">
+              <Award className="w-5 h-5" />
+              40+ Certified Fitness Professionals
             </div>
-          </form>
-          
-          {/* Trust Indicators */}
-          <div className="flex flex-wrap justify-center gap-8 text-sm text-neutral-600" data-testid="trust-indicators">
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-success" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span className="font-medium">Verified Credentials</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-success" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span className="font-medium">Authentic Reviews</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <svg className="w-5 h-5 text-success" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              <span className="font-medium">Secure Platform</span>
+            
+            <h1 className="font-extrabold text-white mb-6 leading-tight text-5xl lg:text-7xl drop-shadow-2xl" data-testid="heading-hero">
+              Find Your Perfect
+              <span className="block mt-2 bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">Fitness Coach</span>
+            </h1>
+            
+            <p className="text-xl lg:text-2xl text-white/95 mb-12 max-w-3xl mx-auto leading-relaxed drop-shadow-lg font-medium" data-testid="text-hero-subtitle">
+              Connect with certified trainers in your area or online. Personalized coaching for your unique fitness goals.
+            </p>
+
+            {/* Enhanced ZIP Code Search */}
+            <form onSubmit={handleSearch} className="max-w-3xl mx-auto mb-8" data-testid="form-hero-search">
+              <div className="flex flex-col sm:flex-row gap-3 p-4 bg-white rounded-2xl shadow-2xl border-2 border-white/50 backdrop-blur-md">
+                <div className="flex-1 flex items-center gap-3 px-4">
+                  <MapPin className="w-6 h-6 text-primary flex-shrink-0" />
+                  <AddressAutocomplete
+                    value={searchLocation}
+                    onChange={(value, addressData) => {
+                      setSearchLocation(value);
+                      if (addressData) {
+                        setSelectedLocationData(addressData);
+                      }
+                    }}
+                    onAddressSelected={handleAddressSelected}
+                    placeholder="Enter your ZIP code, city, or address..."
+                    className="w-full border-0 focus:ring-0 text-lg font-medium"
+                  />
+                </div>
+                <Button 
+                  type="submit" 
+                  size="lg" 
+                  className="gradient-primary text-white font-bold px-10 py-7 rounded-xl shadow-lg hover:shadow-2xl transition-all text-lg"
+                  data-testid="button-search"
+                >
+                  <Search className="w-6 h-6 mr-2" />
+                  Find My Coach
+                </Button>
+              </div>
+            </form>
+            
+            {/* Trust Indicators - Enhanced */}
+            <div className="flex flex-wrap justify-center gap-8 text-white/90" data-testid="trust-indicators">
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
+                <CheckCircle className="w-5 h-5 text-success" />
+                <span className="font-semibold text-sm">Verified Credentials</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
+                <Star className="w-5 h-5 text-accent" />
+                <span className="font-semibold text-sm">Authentic Reviews</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
+                <Shield className="w-5 h-5 text-secondary" />
+                <span className="font-semibold text-sm">Secure Platform</span>
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* Carousel indicators */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+          {heroImages.map((_, index) => (
+            <button
+              key={index}
+              className={`w-3 h-3 rounded-full transition-all ${
+                index === selectedHeroIndex 
+                  ? 'bg-white w-8' 
+                  : 'bg-white/50 hover:bg-white/75'
+              }`}
+              onClick={() => emblaApi?.scrollTo(index)}
+              aria-label={`Go to slide ${index + 1}`}
+              data-testid={`hero-carousel-indicator-${index}`}
+            />
+          ))}
         </div>
       </section>
 
@@ -193,37 +279,170 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Authentication Section */}
-      <section className="py-20 bg-gradient-to-br from-neutral-50 to-white relative overflow-hidden" data-testid="section-auth">
-        {/* Background Pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-0 left-1/4 w-72 h-72 bg-primary rounded-full blur-3xl" />
-          <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-secondary rounded-full blur-3xl" />
-        </div>
-        
-        <div className="container-max relative z-10">
-          <div className="max-w-xl mx-auto">
-            <div className="text-center mb-10">
-              <div className="w-20 h-20 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-xl">
-                <UserPlus className="h-10 w-10 text-white" />
-              </div>
-              <h2 className="text-4xl font-bold text-neutral-900 mb-4">Start Your Journey Today</h2>
-              <p className="text-xl text-neutral-600">
-                Join thousands of people who have transformed their fitness with the perfect coach
+      {/* Featured Coaches Carousel */}
+      {!coachesLoading && featuredCoaches.length > 0 && (
+        <section className="py-20 bg-gradient-to-br from-neutral-50 to-white" data-testid="section-featured-coaches">
+          <div className="container-max">
+            <div className="text-center mb-12">
+              <h2 className="text-4xl lg:text-5xl font-bold text-neutral-900 mb-4">
+                Meet Our <span className="text-gradient">Top-Rated Coaches</span>
+              </h2>
+              <p className="text-xl text-neutral-600 max-w-2xl mx-auto">
+                Discover certified professionals who have transformed thousands of lives
               </p>
             </div>
-            
-            <div className="bg-white rounded-2xl shadow-2xl p-8 border border-neutral-200">
-              <SocialAuth />
-              
-              <div className="mt-6 pt-6 border-t border-neutral-200 text-center">
-                <p className="text-sm text-neutral-500">
-                  By signing up, you agree to our{" "}
-                  <a href="/terms" className="text-primary hover:underline font-medium">Terms of Service</a>
-                  {" "}and{" "}
-                  <a href="/privacy" className="text-primary hover:underline font-medium">Privacy Policy</a>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {featuredCoaches.map((coach) => (
+                <Link key={coach.id} href={`/coach/${coach.slug}`}>
+                  <div 
+                    className="bg-white rounded-2xl shadow-lg overflow-hidden hover-lift cursor-pointer group"
+                    data-testid={`featured-coach-${coach.id}`}
+                  >
+                    <div className="relative h-64 overflow-hidden">
+                      <img 
+                        src={coach.photos[0]} 
+                        alt={coach.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                      <div className="absolute top-4 right-4 flex items-center gap-1 bg-white px-3 py-1.5 rounded-full shadow-lg">
+                        <Star className="w-4 h-4 fill-accent text-accent" />
+                        <span className="font-bold text-sm">{coach.rating?.toFixed(1)}</span>
+                      </div>
+                    </div>
+                    <div className="p-6">
+                      <h3 className="text-2xl font-bold text-neutral-900 mb-2">{coach.name}</h3>
+                      <p className="text-neutral-600 mb-4 flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-primary" />
+                        {coach.city}, {coach.state}
+                      </p>
+                      <div className="flex flex-wrap gap-2 mb-4">
+                        {coach.specialties.slice(0, 3).map((specialty) => (
+                          <span 
+                            key={specialty}
+                            className="bg-gradient-to-r from-secondary/10 to-primary/10 text-neutral-700 px-3 py-1 rounded-full text-sm font-medium"
+                          >
+                            {specialty}
+                          </span>
+                        ))}
+                      </div>
+                      <div className="flex items-center justify-between pt-4 border-t border-neutral-200">
+                        <div>
+                          <span className="text-2xl font-bold text-primary">${coach.pricePerHour}</span>
+                          <span className="text-neutral-500 text-sm">/hour</span>
+                        </div>
+                        <div className="px-4 py-2 bg-primary/10 text-primary rounded-lg font-semibold text-sm group-hover:bg-primary group-hover:text-white transition-all">
+                          View Profile
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Testimonials Section */}
+      <section className="py-20 bg-white" data-testid="section-testimonials">
+        <div className="container-max">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl lg:text-5xl font-bold text-neutral-900 mb-4">
+              Success <span className="text-gradient">Stories</span>
+            </h2>
+            <p className="text-xl text-neutral-600 max-w-2xl mx-auto">
+              Real results from real people who found their perfect fitness match
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {testimonials.map((testimonial, index) => (
+              <div 
+                key={index}
+                className="bg-gradient-to-br from-neutral-50 to-white p-8 rounded-2xl shadow-lg border border-neutral-200 hover:shadow-xl transition-shadow"
+                data-testid={`testimonial-${index}`}
+              >
+                <div className="flex gap-1 mb-4">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <Star key={i} className="w-5 h-5 fill-accent text-accent" />
+                  ))}
+                </div>
+                <p className="text-neutral-700 text-lg mb-6 leading-relaxed italic">
+                  "{testimonial.text}"
                 </p>
+                <div className="flex items-center gap-4">
+                  <img 
+                    src={testimonial.image} 
+                    alt={testimonial.name}
+                    className="w-14 h-14 rounded-full object-cover ring-2 ring-primary/20"
+                  />
+                  <div>
+                    <div className="font-bold text-neutral-900">{testimonial.name}</div>
+                    <div className="text-neutral-600 text-sm">{testimonial.location}</div>
+                  </div>
+                </div>
               </div>
+            ))}
+          </div>
+
+          {/* Enhanced Stats with Social Proof */}
+          <div className="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 py-12 px-8 bg-gradient-to-br from-primary/5 to-secondary/5 rounded-3xl">
+            <div className="text-center">
+              <Users className="w-12 h-12 text-primary mx-auto mb-3" />
+              <div className="text-5xl font-bold text-neutral-900 mb-2">10,000+</div>
+              <div className="text-neutral-600 font-medium">Sessions Completed</div>
+            </div>
+            <div className="text-center">
+              <Award className="w-12 h-12 text-secondary mx-auto mb-3" />
+              <div className="text-5xl font-bold text-neutral-900 mb-2">40+</div>
+              <div className="text-neutral-600 font-medium">Certified Coaches</div>
+            </div>
+            <div className="text-center">
+              <Star className="w-12 h-12 text-accent mx-auto mb-3" />
+              <div className="text-5xl font-bold text-neutral-900 mb-2">4.9</div>
+              <div className="text-neutral-600 font-medium">Average Rating</div>
+            </div>
+            <div className="text-center">
+              <CheckCircle className="w-12 h-12 text-success mx-auto mb-3" />
+              <div className="text-5xl font-bold text-neutral-900 mb-2">100%</div>
+              <div className="text-neutral-600 font-medium">Verified Credentials</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Call to Action */}
+      <section className="py-20 bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden" data-testid="section-cta">
+        <div className="container-max text-center">
+          <div className="max-w-3xl mx-auto">
+            <h2 className="text-4xl lg:text-5xl font-bold text-neutral-900 mb-6">
+              Ready to Transform Your Fitness?
+            </h2>
+            <p className="text-xl text-neutral-600 mb-10">
+              Start your journey today. Browse coaches, compare profiles, and find your perfect match.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button 
+                onClick={() => setLocation('/search')}
+                size="lg"
+                className="gradient-primary text-white font-bold px-10 py-7 rounded-xl shadow-lg hover:shadow-2xl transition-all text-lg"
+                data-testid="button-cta-find-coaches"
+              >
+                <Search className="w-6 h-6 mr-2" />
+                Find Coaches Now
+              </Button>
+              <Button 
+                onClick={() => window.location.href = "/api/login"}
+                size="lg"
+                variant="outline"
+                className="border-2 border-primary text-primary hover:bg-primary hover:text-white font-bold px-10 py-7 rounded-xl shadow-lg hover:shadow-2xl transition-all text-lg"
+                data-testid="button-cta-login"
+              >
+                <UserPlus className="w-6 h-6 mr-2" />
+                Sign Up / Log In
+              </Button>
             </div>
           </div>
         </div>
