@@ -71,12 +71,25 @@ Input validation is handled using Zod schemas integrated with Drizzle ORM for ty
 - Added user profiles with role-based access (USER/COACH)
 - Database schema includes username and password fields for local authentication
 - Login page features tabbed interface for OAuth (Quick Sign In) and traditional (Email & Password) authentication
+  - Flattened UI structure with button toggles for Login/Signup to avoid nested Tabs accessibility issues
+  - All elements fully testable with Playwright
 - Form validation using Zod schemas with client-side error display
-- Password confirmation field with matching validation
+  - Username: minimum 3 characters
+  - Email: valid email format required
+  - Password: minimum 6 characters
+  - Password confirmation: must match password field
+  - Inline validation errors with red text and data-testid attributes
 - React Query mutations for signup/login with proper session management and cache invalidation
+  - Auto-login after successful signup
+  - Session-based authentication with HTTP-only cookies
+  - Cache invalidation on auth state changes
+- Navbar dropdown menu for authenticated users
+  - User name and email display
+  - Profile navigation option
+  - Explicit logout button with proper session termination
 - Created landing page for non-authenticated users
-- Updated navbar with authentication states and user profile display
 - All login redirects now point to dedicated /login page
+- End-to-end tested: signup, login, logout, and validation flows all verified
 
 ### Location & Maps Integration
 - Integrated Google Maps JavaScript API with interactive markers
