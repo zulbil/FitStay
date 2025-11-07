@@ -150,12 +150,24 @@ Input validation is handled using Zod schemas integrated with Drizzle ORM for ty
   - 4.9 Average Rating
   - 100% Verified Credentials
   - Icons and gradient background for visual impact
-- Replaced blocking authentication modal with call-to-action section
-  - Two clear CTAs: "Find Coaches Now" and "Sign Up / Log In"
-  - Users can browse entire landing page without authentication
-  - Non-intrusive signup encouragement
+- Removed authentication section to create dedicated login page
 - Implemented image preloading for smooth carousel transitions
 - Added comprehensive data-testid attributes for testing
 - Optimized loading states to prevent layout shift
+
+### Dedicated Login Page (November 2025)
+- Created standalone login page at /login route
+- Full-height centered layout with gradient background and decorative patterns
+- Prominent "Welcome to CoachBnB" heading with gradient branding
+- SocialAuth component integration with three authentication options:
+  - Continue with Google
+  - Continue with Facebook  
+  - Continue with Replit
+- Clear description of login benefits (messaging coaches, applying as coach, managing fitness journey)
+- Links to Terms of Service and Privacy Policy
+- "Browse coaches without signing in" link for easy navigation back to landing
+- Auto-redirect to home page if user is already authenticated
+- Updated navbar to link to /login instead of direct OAuth endpoint
+- Comprehensive data-testid coverage for testing
 
 The architecture is designed to be production-ready and scalable, with clear separation of concerns, comprehensive authentication, modern design system, and web development best practices throughout the stack.
