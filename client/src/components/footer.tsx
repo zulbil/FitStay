@@ -4,8 +4,8 @@ import { Dumbbell, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
 export default function Footer() {
   return (
     <footer className="bg-gradient-to-br from-neutral-50 to-neutral-100 border-t border-neutral-200" data-testid="footer">
-      <div className="container-max py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-8">
+      <div className="container-max py-20 px-6 md:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-10">
           {/* Brand Section */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2 mb-4">
@@ -16,10 +16,10 @@ export default function Footer() {
                 CoachBnB
               </h3>
             </div>
-            <p className="text-neutral-600 mb-6 leading-relaxed max-w-sm">
+            <p className="text-neutral-600 mb-8 leading-relaxed max-w-sm">
               The trusted platform connecting fitness professionals with clients worldwide. Transform your fitness journey or grow your coaching business.
             </p>
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <a 
                 href="#" 
                 className="w-10 h-10 bg-white rounded-full flex items-center justify-center text-neutral-600 hover:bg-primary hover:text-white transition-all shadow-sm hover:shadow-md"
@@ -53,8 +53,8 @@ export default function Footer() {
           
           {/* For Clients */}
           <div>
-            <h4 className="font-bold text-neutral-900 mb-4 text-lg">For Clients</h4>
-            <ul className="space-y-3">
+            <h4 className="font-bold text-neutral-900 mb-5 text-lg">For Clients</h4>
+            <ul className="space-y-3.5">
               <li>
                 <Link href="/search">
                   <span className="text-neutral-600 hover:text-primary transition-colors font-medium cursor-pointer" data-testid="link-find-coach">
@@ -70,8 +70,8 @@ export default function Footer() {
           
           {/* For Coaches */}
           <div>
-            <h4 className="font-bold text-neutral-900 mb-4 text-lg">For Coaches</h4>
-            <ul className="space-y-3">
+            <h4 className="font-bold text-neutral-900 mb-5 text-lg">For Coaches</h4>
+            <ul className="space-y-3.5">
               <li>
                 <Link href="/for-coaches">
                   <span className="text-neutral-600 hover:text-primary transition-colors font-medium cursor-pointer" data-testid="link-become-coach">
@@ -87,8 +87,8 @@ export default function Footer() {
           
           {/* Support */}
           <div>
-            <h4 className="font-bold text-neutral-900 mb-4 text-lg">Support</h4>
-            <ul className="space-y-3">
+            <h4 className="font-bold text-neutral-900 mb-5 text-lg">Support</h4>
+            <ul className="space-y-3.5">
               <li><a href="#" className="text-neutral-600 hover:text-primary transition-colors">Help Center</a></li>
               <li><a href="#" className="text-neutral-600 hover:text-primary transition-colors">Contact Us</a></li>
               <li><a href="#" className="text-neutral-600 hover:text-primary transition-colors">Trust & Safety</a></li>
@@ -104,7 +104,7 @@ export default function Footer() {
         </div>
         
         {/* Bottom Bar */}
-        <div className="border-t border-neutral-300 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="border-t border-neutral-300 mt-16 pt-10 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-neutral-600 text-sm font-medium">
             © 2025 CoachBnB. All rights reserved.
           </p>
