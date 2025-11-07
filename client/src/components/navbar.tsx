@@ -84,13 +84,14 @@ export default function Navbar() {
                 </div>
               </div>
             ) : (
-              <Button 
-                onClick={() => window.location.href = "/api/login"} 
-                className="gradient-primary text-white font-semibold px-6 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all"
-                data-testid="button-login"
-              >
-                Log In
-              </Button>
+              <Link href="/login">
+                <Button 
+                  className="gradient-primary text-white font-semibold px-6 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all"
+                  data-testid="button-login"
+                >
+                  Log In
+                </Button>
+              </Link>
             )}
           </div>
         </div>

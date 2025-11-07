@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Landing from "@/pages/landing";
+import Login from "@/pages/login";
 import Search from "@/pages/search";
 import CoachProfile from "@/pages/coach-profile";
 import ForCoaches from "@/pages/for-coaches";
@@ -28,6 +29,7 @@ function Router() {
       <main className="flex-1">
         <Switch>
           <Route path="/" component={isAuthenticated ? Home : Landing} />
+          <Route path="/login" component={Login} />
           <Route path="/search" component={Search} />
           <Route path="/coach/:slug" component={CoachProfile} />
           <Route path="/for-coaches" component={ForCoaches} />

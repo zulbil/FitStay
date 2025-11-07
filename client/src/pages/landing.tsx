@@ -413,40 +413,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Call to Action */}
-      <section className="py-20 bg-gradient-to-br from-primary/10 to-secondary/10 relative overflow-hidden" data-testid="section-cta">
-        <div className="container-max text-center">
-          <div className="max-w-3xl mx-auto">
-            <h2 className="text-4xl lg:text-5xl font-bold text-neutral-900 mb-6">
-              Ready to Transform Your Fitness?
-            </h2>
-            <p className="text-xl text-neutral-600 mb-10">
-              Start your journey today. Browse coaches, compare profiles, and find your perfect match.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                onClick={() => setLocation('/search')}
-                size="lg"
-                className="gradient-primary text-white font-bold px-10 py-7 rounded-xl shadow-lg hover:shadow-2xl transition-all text-lg"
-                data-testid="button-cta-find-coaches"
-              >
-                <Search className="w-6 h-6 mr-2" />
-                Find Coaches Now
-              </Button>
-              <Button 
-                onClick={() => window.location.href = "/api/login"}
-                size="lg"
-                variant="outline"
-                className="border-2 border-primary text-primary hover:bg-primary hover:text-white font-bold px-10 py-7 rounded-xl shadow-lg hover:shadow-2xl transition-all text-lg"
-                data-testid="button-cta-login"
-              >
-                <UserPlus className="w-6 h-6 mr-2" />
-                Sign Up / Log In
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }
