@@ -19,6 +19,14 @@ interface ZipCodeData {
   fullAddress?: string;
 }
 
+// Helper function to convert slug to display name
+const slugToName = (slug: string): string => {
+  return slug
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 export default function Landing() {
   const [, setLocation] = useLocation();
   const [searchLocation, setSearchLocation] = useState("");
@@ -29,7 +37,10 @@ export default function Landing() {
     queryKey: ['/api/coaches'],
   });
 
-  const featuredCoaches = coachesData?.coaches?.filter(c => c.rating && c.rating >= 4.8).slice(0, 6) || [];
+  // Show first 6 coaches (or filter by ratingAvg >= 4.8 if coaches have reviews)
+  const featuredCoaches = coachesData?.coaches
+    ?.filter(c => !c.ratingAvg || c.ratingAvg >= 4.8)
+    .slice(0, 6) || [];
   
   // Hero slider with coach background images
   const [emblaRef, emblaApi] = useEmblaCarousel(
@@ -302,17 +313,17 @@ export default function Landing() {
                     <div className="relative h-64 overflow-hidden">
                       <img 
                         src={coach.photos[0]} 
-                        alt={coach.name}
+                        alt={slugToName(coach.slug)}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                       <div className="absolute top-4 right-4 flex items-center gap-1 bg-white px-3 py-1.5 rounded-full shadow-lg">
                         <Star className="w-4 h-4 fill-accent text-accent" />
-                        <span className="font-bold text-sm">{coach.rating?.toFixed(1)}</span>
+                        <span className="font-bold text-sm">{(coach.ratingAvg && coach.ratingAvg > 0) ? coach.ratingAvg.toFixed(1) : 'New'}</span>
                       </div>
                     </div>
                     <div className="p-6">
-                      <h3 className="text-2xl font-bold text-neutral-900 mb-2">{coach.name}</h3>
+                      <h3 className="text-2xl font-bold text-neutral-900 mb-2">{slugToName(coach.slug)}</h3>
                       <p className="text-neutral-600 mb-4 flex items-center gap-2">
                         <MapPin className="w-4 h-4 text-primary" />
                         {coach.city}, {coach.state}
