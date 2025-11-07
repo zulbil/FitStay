@@ -2,7 +2,9 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as FacebookStrategy } from "passport-facebook";
 // @ts-ignore - passport-apple doesn't have TypeScript definitions
 import { Strategy as AppleStrategy } from "passport-apple";
+import { Strategy as LocalStrategy } from "passport-local";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 import passport from "passport";
 import session from "express-session";
@@ -54,6 +56,41 @@ export async function setupAuth(app: Express) {
   app.use(getSession());
   app.use(passport.initialize());
   app.use(passport.session());
+
+  // Local Strategy (username/password)
+  passport.use(new LocalStrategy({
+    usernameField: 'username',
+    passwordField: 'password'
+  }, async (username, password, done) => {
+    try {
+      const user = await storage.getUserByUsername(username);
+      if (!user || !user.password) {
+        return done(null, false, { message: 'Invalid username or password' });
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password);
+      if (!isPasswordValid) {
+        return done(null, false, { message: 'Invalid username or password' });
+      }
+
+      // Create user object for session
+      const sessionUser = {
+        claims: {
+          sub: user.id,
+          email: user.email,
+          given_name: user.firstName,
+          family_name: user.lastName,
+        },
+        access_token: null,
+        refresh_token: null,
+        expires_at: Math.floor(Date.now() / 1000) + 3600,
+      };
+
+      return done(null, sessionUser);
+    } catch (error) {
+      return done(error as Error);
+    }
+  }));
 
   // Google OAuth Strategy
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {

@@ -4,6 +4,8 @@ import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { insertInquirySchema, insertCoachApplicationSchema } from "@shared/schema";
 import { z } from "zod";
+import bcrypt from "bcrypt";
+import passport from "passport";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication
@@ -33,6 +35,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error processing data deletion request:", error);
       res.status(500).json({ message: "Failed to process data deletion request" });
     }
+  });
+
+  // Signup endpoint
+  app.post('/api/auth/signup', async (req, res) => {
+    try {
+      const { username, email, password, firstName, lastName } = req.body;
+
+      // Validation
+      if (!username || !email || !password) {
+        return res.status(400).json({ message: "Username, email, and password are required" });
+      }
+
+      // Check if username already exists
+      const existingUsername = await storage.getUserByUsername(username);
+      if (existingUsername) {
+        return res.status(400).json({ message: "Username already taken" });
+      }
+
+      // Check if email already exists
+      const existingEmail = await storage.getUserByEmail(email);
+      if (existingEmail) {
+        return res.status(400).json({ message: "Email already registered" });
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create user
+      const user = await storage.createUser({
+        username,
+        email,
+        password: hashedPassword,
+        firstName: firstName || null,
+        lastName: lastName || null,
+        provider: "local",
+        role: "USER",
+      });
+
+      // Log the user in automatically
+      req.login({
+        claims: {
+          sub: user.id,
+          email: user.email,
+          given_name: user.firstName,
+          family_name: user.lastName,
+        },
+        access_token: null,
+        refresh_token: null,
+        expires_at: Math.floor(Date.now() / 1000) + 3600,
+      }, (err) => {
+        if (err) {
+          console.error("Error logging in after signup:", err);
+          return res.status(500).json({ message: "Signup successful, but login failed" });
+        }
+        res.json({ message: "Signup successful", user: { id: user.id, username: user.username, email: user.email } });
+      });
+    } catch (error) {
+      console.error("Error during signup:", error);
+      res.status(500).json({ message: "Failed to create account" });
+    }
+  });
+
+  // Login endpoint
+  app.post('/api/auth/login', (req, res, next) => {
+    passport.authenticate('local', (err: any, user: any, info: any) => {
+      if (err) {
+        return res.status(500).json({ message: "Authentication error" });
+      }
+      if (!user) {
+        return res.status(401).json({ message: info?.message || "Invalid credentials" });
+      }
+      req.login(user, (err) => {
+        if (err) {
+          return res.status(500).json({ message: "Login failed" });
+        }
+        res.json({ message: "Login successful" });
+      });
+    })(req, res, next);
   });
 
   // Auth routes
