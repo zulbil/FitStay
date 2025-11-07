@@ -4,7 +4,7 @@ import { Dumbbell, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
 export default function Footer() {
   return (
     <footer className="bg-gradient-to-br from-neutral-50 to-neutral-100 border-t border-neutral-200" data-testid="footer">
-      <div className="container-max py-20 px-6 md:px-8">
+      <div className="container-max py-24 md:py-28 px-6 md:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 lg:gap-10">
           {/* Brand Section */}
           <div className="lg:col-span-2">
