@@ -1,28 +1,13 @@
-import * as client from "openid-client";
-import { Strategy, type VerifyFunction } from "openid-client/passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as FacebookStrategy } from "passport-facebook";
+// @ts-ignore - passport-apple doesn't have TypeScript definitions
+import { Strategy as AppleStrategy } from "passport-apple";
 
 import passport from "passport";
 import session from "express-session";
 import type { Express, RequestHandler } from "express";
-import memoize from "memoizee";
 import connectPg from "connect-pg-simple";
 import { storage } from "./storage";
-
-if (!process.env.REPLIT_DOMAINS) {
-  throw new Error("Environment variable REPLIT_DOMAINS not provided");
-}
-
-const getOidcConfig = memoize(
-  async () => {
-    return await client.discovery(
-      new URL(process.env.ISSUER_URL ?? "https://replit.com/oidc"),
-      process.env.REPL_ID!
-    );
-  },
-  { maxAge: 3600 * 1000 }
-);
 
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
@@ -46,22 +31,12 @@ export function getSession() {
   });
 }
 
-function updateUserSession(
-  user: any,
-  tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers
-) {
-  user.claims = tokens.claims();
-  user.access_token = tokens.access_token;
-  user.refresh_token = tokens.refresh_token;
-  user.expires_at = user.claims?.exp;
-}
-
 async function upsertUser(
   claims: any,
-  provider?: string
+  provider: string
 ) {
   // Generate a unique ID based on provider and external ID
-  const userId = provider ? `${provider}_${claims["sub"] || claims["id"]}` : claims["sub"];
+  const userId = `${provider}_${claims["sub"] || claims["id"]}`;
   
   await storage.upsertUser({
     id: userId,
@@ -69,7 +44,7 @@ async function upsertUser(
     firstName: claims["first_name"] || claims["given_name"] || claims["name"]?.split(' ')[0],
     lastName: claims["last_name"] || claims["family_name"] || claims["name"]?.split(' ')[1],
     profileImageUrl: claims["profile_image_url"] || claims["picture"],
-    provider: provider || "replit",
+    provider: provider,
   });
 }
 
@@ -78,18 +53,6 @@ export async function setupAuth(app: Express) {
   app.use(getSession());
   app.use(passport.initialize());
   app.use(passport.session());
-
-  const config = await getOidcConfig();
-
-  const verify: VerifyFunction = async (
-    tokens: client.TokenEndpointResponse & client.TokenEndpointResponseHelpers,
-    verified: passport.AuthenticateCallback
-  ) => {
-    const user = {};
-    updateUserSession(user, tokens);
-    await upsertUser(tokens.claims(), "replit");
-    verified(null, user);
-  };
 
   // Google OAuth Strategy
   if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
@@ -114,7 +77,7 @@ export async function setupAuth(app: Express) {
         await upsertUser(user.claims, "google");
         return done(null, user);
       } catch (error) {
-        return done(error, null);
+        return done(error as Error);
       }
     }));
   }
@@ -143,41 +106,46 @@ export async function setupAuth(app: Express) {
         await upsertUser(user.claims, "facebook");
         return done(null, user);
       } catch (error) {
-        return done(error, null);
+        return done(error as Error);
       }
     }));
   }
 
-  for (const domain of process.env
-    .REPLIT_DOMAINS!.split(",")) {
-    const strategy = new Strategy(
-      {
-        name: `replitauth:${domain}`,
-        config,
-        scope: "openid email profile offline_access",
-        callbackURL: `https://${domain}/api/callback`,
-      },
-      verify,
-    );
-    passport.use(strategy);
+  // Apple OAuth Strategy
+  if (process.env.APPLE_TEAM_ID && process.env.APPLE_KEY_ID && process.env.APPLE_CLIENT_ID && process.env.APPLE_PRIVATE_KEY) {
+    passport.use(new AppleStrategy({
+      clientID: process.env.APPLE_CLIENT_ID,
+      teamID: process.env.APPLE_TEAM_ID,
+      keyID: process.env.APPLE_KEY_ID,
+      privateKeyString: process.env.APPLE_PRIVATE_KEY,
+      callbackURL: "/api/auth/apple/callback",
+      passReqToCallback: true
+    }, async (req: any, accessToken: any, refreshToken: any, idToken: any, profile: any, done: any) => {
+      try {
+        // Apple sends user info only on first login in req.body.user
+        const firstTimeUser = req.body.user ? JSON.parse(req.body.user) : null;
+        
+        const user = {
+          claims: {
+            sub: profile.id || profile.sub,
+            email: profile.email,
+            given_name: firstTimeUser?.name?.firstName,
+            family_name: firstTimeUser?.name?.lastName,
+          },
+          access_token: accessToken,
+          refresh_token: refreshToken,
+          expires_at: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
+        };
+        await upsertUser(user.claims, "apple");
+        return done(null, user);
+      } catch (error) {
+        return done(error as Error);
+      }
+    }));
   }
 
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
-
-  app.get("/api/login", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      prompt: "login consent",
-      scope: ["openid", "email", "profile", "offline_access"],
-    })(req, res, next);
-  });
-
-  app.get("/api/callback", (req, res, next) => {
-    passport.authenticate(`replitauth:${req.hostname}`, {
-      successReturnToOrRedirect: "/",
-      failureRedirect: "/api/login",
-    })(req, res, next);
-  });
 
   // Google OAuth routes
   app.get("/api/auth/google", 
@@ -203,43 +171,29 @@ export async function setupAuth(app: Express) {
     }
   );
 
+  // Apple OAuth routes  
+  app.get("/api/auth/apple",
+    passport.authenticate("apple", { scope: ["email", "name"] })
+  );
+
+  // Note: Apple uses POST for callback, not GET
+  app.post("/api/auth/apple/callback",
+    passport.authenticate("apple", { failureRedirect: "/login" }),
+    (req, res) => {
+      res.redirect("/");
+    }
+  );
+
   app.get("/api/logout", (req, res) => {
     req.logout(() => {
-      res.redirect(
-        client.buildEndSessionUrl(config, {
-          client_id: process.env.REPL_ID!,
-          post_logout_redirect_uri: `${req.protocol}://${req.hostname}`,
-        }).href
-      );
+      res.redirect("/");
     });
   });
 }
 
 export const isAuthenticated: RequestHandler = async (req, res, next) => {
-  const user = req.user as any;
-
-  if (!req.isAuthenticated() || !user.expires_at) {
+  if (!req.isAuthenticated()) {
     return res.status(401).json({ message: "Unauthorized" });
   }
-
-  const now = Math.floor(Date.now() / 1000);
-  if (now <= user.expires_at) {
-    return next();
-  }
-
-  const refreshToken = user.refresh_token;
-  if (!refreshToken) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
-
-  try {
-    const config = await getOidcConfig();
-    const tokenResponse = await client.refreshTokenGrant(config, refreshToken);
-    updateUserSession(user, tokenResponse);
-    return next();
-  } catch (error) {
-    res.status(401).json({ message: "Unauthorized" });
-    return;
-  }
+  return next();
 };
