@@ -64,9 +64,16 @@ Input validation is handled using Zod schemas integrated with Drizzle ORM for ty
 ### Authentication & User Management (Updated November 2025)
 - Removed Replit authentication and replaced with industry-standard OAuth providers
 - Implemented OAuth 2.0 authentication with three providers: Google, Facebook, and Apple Sign In
+- Added traditional username/password authentication using passport-local strategy
+- Password security: bcrypt hashing with 10 salt rounds
 - Apple OAuth includes proper POST callback handling and first-time user data capture
 - Simplified authentication middleware by removing OIDC token refresh logic
 - Added user profiles with role-based access (USER/COACH)
+- Database schema includes username and password fields for local authentication
+- Login page features tabbed interface for OAuth (Quick Sign In) and traditional (Email & Password) authentication
+- Form validation using Zod schemas with client-side error display
+- Password confirmation field with matching validation
+- React Query mutations for signup/login with proper session management and cache invalidation
 - Created landing page for non-authenticated users
 - Updated navbar with authentication states and user profile display
 - All login redirects now point to dedicated /login page

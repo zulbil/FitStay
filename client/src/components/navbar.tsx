@@ -1,7 +1,15 @@
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { Menu, User, Search, Dumbbell } from "lucide-react";
+import { Menu, User, Search, Dumbbell, LogOut, UserCircle } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function Navbar() {
   const { user, isAuthenticated } = useAuth();
@@ -63,25 +71,50 @@ export default function Navbar() {
                 <span className="hidden sm:block text-sm font-medium text-neutral-700" data-testid="text-user-greeting">
                   Hello, {(user as any)?.name || (user as any)?.firstName || "User"}
                 </span>
-                <div 
-                  className="flex items-center gap-2 border-2 border-neutral-200 rounded-full pl-3 pr-2 py-1.5 hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer group" 
-                  onClick={handleLogout}
-                  data-testid="button-user-menu"
-                >
-                  <Menu className="h-4 w-4 text-neutral-600 group-hover:text-primary" />
-                  {(user as any)?.profileImageUrl ? (
-                    <img 
-                      src={(user as any).profileImageUrl} 
-                      alt="Profile" 
-                      className="w-9 h-9 rounded-full object-cover ring-2 ring-white"
-                      data-testid="img-user-avatar"
-                    />
-                  ) : (
-                    <div className="w-9 h-9 gradient-primary rounded-full flex items-center justify-center shadow-md">
-                      <User className="h-5 w-5 text-white" />
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <div 
+                      className="flex items-center gap-2 border-2 border-neutral-200 rounded-full pl-3 pr-2 py-1.5 hover:shadow-lg hover:border-primary/50 transition-all cursor-pointer group" 
+                      data-testid="button-user-menu"
+                    >
+                      <Menu className="h-4 w-4 text-neutral-600 group-hover:text-primary" />
+                      {(user as any)?.profileImageUrl ? (
+                        <img 
+                          src={(user as any).profileImageUrl} 
+                          alt="Profile" 
+                          className="w-9 h-9 rounded-full object-cover ring-2 ring-white"
+                          data-testid="img-user-avatar"
+                        />
+                      ) : (
+                        <div className="w-9 h-9 gradient-primary rounded-full flex items-center justify-center shadow-md">
+                          <User className="h-5 w-5 text-white" />
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel>
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">
+                          {(user as any)?.name || (user as any)?.firstName || "User"}
+                        </p>
+                        <p className="text-xs leading-none text-neutral-500">
+                          {(user as any)?.email || ""}
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => window.location.href = "/profile"} data-testid="menu-profile">
+                      <UserCircle className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout} data-testid="button-logout">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Log out</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             ) : (
               <Link href="/login">

@@ -7,7 +7,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { apiRequest } from "@/lib/queryClient";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { z } from "zod";
+
+const loginSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+const signupSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string(),
+  firstName: z.string().optional(),
+  lastName: z.string().optional(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
 
 export default function Login() {
   const [, setLocation] = useLocation();
@@ -17,15 +36,21 @@ export default function Login() {
   // Login form state
   const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
-  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [loginErrors, setLoginErrors] = useState<{ username?: string; password?: string }>({});
   
   // Signup form state
   const [signupUsername, setSignupUsername] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
+  const [signupConfirmPassword, setSignupConfirmPassword] = useState("");
   const [signupFirstName, setSignupFirstName] = useState("");
   const [signupLastName, setSignupLastName] = useState("");
-  const [isSigningUp, setIsSigningUp] = useState(false);
+  const [signupErrors, setSignupErrors] = useState<{ 
+    username?: string; 
+    email?: string; 
+    password?: string; 
+    confirmPassword?: string;
+  }>({});
 
   // Redirect to home if already authenticated
   useEffect(() => {
@@ -34,68 +59,110 @@ export default function Login() {
     }
   }, [isAuthenticated, setLocation]);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoggingIn(true);
-    
-    try {
-      await apiRequest("/api/auth/login", {
-        method: "POST",
-        body: JSON.stringify({ username: loginUsername, password: loginPassword }),
-        headers: { "Content-Type": "application/json" },
-      });
+  // Login mutation
+  const loginMutation = useMutation({
+    mutationFn: async (data: z.infer<typeof loginSchema>) => {
+      return await apiRequest("POST", "/api/auth/login", data);
+    },
+    onSuccess: async () => {
+      // Invalidate and refetch user data to update auth state
+      await queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       
       toast({
         title: "Login successful",
         description: "Welcome back!",
       });
       
-      // Redirect to home page
-      window.location.href = "/";
-    } catch (error: any) {
+      // Let useAuth redirect naturally via the useEffect
+      setLocation("/");
+    },
+    onError: (error: any) => {
       toast({
         title: "Login failed",
         description: error.message || "Invalid username or password",
         variant: "destructive",
       });
-    } finally {
-      setIsLoggingIn(false);
-    }
-  };
+    },
+  });
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSigningUp(true);
-    
-    try {
-      await apiRequest("/api/auth/signup", {
-        method: "POST",
-        body: JSON.stringify({
-          username: signupUsername,
-          email: signupEmail,
-          password: signupPassword,
-          firstName: signupFirstName,
-          lastName: signupLastName,
-        }),
-        headers: { "Content-Type": "application/json" },
-      });
+  // Signup mutation
+  const signupMutation = useMutation({
+    mutationFn: async (data: Omit<z.infer<typeof signupSchema>, "confirmPassword">) => {
+      return await apiRequest("POST", "/api/auth/signup", data);
+    },
+    onSuccess: async () => {
+      // Invalidate and refetch user data to update auth state
+      await queryClient.invalidateQueries({ queryKey: ["/api/auth/user"] });
       
       toast({
         title: "Account created successfully",
         description: "Welcome to CoachBnB!",
       });
       
-      // Redirect to home page
-      window.location.href = "/";
-    } catch (error: any) {
+      // Let useAuth redirect naturally via the useEffect
+      setLocation("/");
+    },
+    onError: (error: any) => {
       toast({
         title: "Signup failed",
         description: error.message || "Failed to create account",
         variant: "destructive",
       });
-    } finally {
-      setIsSigningUp(false);
+    },
+  });
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginErrors({});
+    
+    // Validate form
+    const result = loginSchema.safeParse({
+      username: loginUsername,
+      password: loginPassword,
+    });
+    
+    if (!result.success) {
+      const errors: any = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          errors[err.path[0]] = err.message;
+        }
+      });
+      setLoginErrors(errors);
+      return;
     }
+    
+    loginMutation.mutate(result.data);
+  };
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSignupErrors({});
+    
+    // Validate form
+    const result = signupSchema.safeParse({
+      username: signupUsername,
+      email: signupEmail,
+      password: signupPassword,
+      confirmPassword: signupConfirmPassword,
+      firstName: signupFirstName || undefined,
+      lastName: signupLastName || undefined,
+    });
+    
+    if (!result.success) {
+      const errors: any = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          errors[err.path[0]] = err.message;
+        }
+      });
+      setSignupErrors(errors);
+      return;
+    }
+    
+    // Remove confirmPassword before sending to API
+    const { confirmPassword, ...signupData } = result.data;
+    signupMutation.mutate(signupData);
   };
 
   return (
@@ -152,11 +219,13 @@ export default function Login() {
                             placeholder="Enter your username"
                             value={loginUsername}
                             onChange={(e) => setLoginUsername(e.target.value)}
-                            required
-                            className="pl-10"
+                            className={`pl-10 ${loginErrors.username ? "border-red-500" : ""}`}
                             data-testid="input-login-username"
                           />
                         </div>
+                        {loginErrors.username && (
+                          <p className="text-sm text-red-500 mt-1">{loginErrors.username}</p>
+                        )}
                       </div>
                       
                       <div>
@@ -171,20 +240,22 @@ export default function Login() {
                             placeholder="Enter your password"
                             value={loginPassword}
                             onChange={(e) => setLoginPassword(e.target.value)}
-                            required
-                            className="pl-10"
+                            className={`pl-10 ${loginErrors.password ? "border-red-500" : ""}`}
                             data-testid="input-login-password"
                           />
                         </div>
+                        {loginErrors.password && (
+                          <p className="text-sm text-red-500 mt-1">{loginErrors.password}</p>
+                        )}
                       </div>
                       
                       <Button
                         type="submit"
                         className="w-full gradient-primary text-white font-semibold py-3 hover:opacity-90 transition-opacity"
-                        disabled={isLoggingIn}
+                        disabled={loginMutation.isPending}
                         data-testid="button-login-submit"
                       >
-                        {isLoggingIn ? "Logging in..." : "Log In"}
+                        {loginMutation.isPending ? "Logging in..." : "Log In"}
                       </Button>
                     </form>
                   </TabsContent>
@@ -233,11 +304,13 @@ export default function Login() {
                             placeholder="Choose a username"
                             value={signupUsername}
                             onChange={(e) => setSignupUsername(e.target.value)}
-                            required
-                            className="pl-10"
+                            className={`pl-10 ${signupErrors.username ? "border-red-500" : ""}`}
                             data-testid="input-signup-username"
                           />
                         </div>
+                        {signupErrors.username && (
+                          <p className="text-sm text-red-500 mt-1">{signupErrors.username}</p>
+                        )}
                       </div>
                       
                       <div>
@@ -252,11 +325,13 @@ export default function Login() {
                             placeholder="your@email.com"
                             value={signupEmail}
                             onChange={(e) => setSignupEmail(e.target.value)}
-                            required
-                            className="pl-10"
+                            className={`pl-10 ${signupErrors.email ? "border-red-500" : ""}`}
                             data-testid="input-signup-email"
                           />
                         </div>
+                        {signupErrors.email && (
+                          <p className="text-sm text-red-500 mt-1">{signupErrors.email}</p>
+                        )}
                       </div>
                       
                       <div>
@@ -271,22 +346,43 @@ export default function Login() {
                             placeholder="Create a password"
                             value={signupPassword}
                             onChange={(e) => setSignupPassword(e.target.value)}
-                            required
-                            minLength={6}
-                            className="pl-10"
+                            className={`pl-10 ${signupErrors.password ? "border-red-500" : ""}`}
                             data-testid="input-signup-password"
                           />
                         </div>
-                        <p className="text-xs text-neutral-500 mt-1">Minimum 6 characters</p>
+                        {signupErrors.password && (
+                          <p className="text-sm text-red-500 mt-1">{signupErrors.password}</p>
+                        )}
+                      </div>
+                      
+                      <div>
+                        <label htmlFor="signup-confirm-password" className="block text-sm font-medium text-neutral-700 mb-2">
+                          Confirm Password *
+                        </label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-neutral-400" />
+                          <Input
+                            id="signup-confirm-password"
+                            type="password"
+                            placeholder="Confirm your password"
+                            value={signupConfirmPassword}
+                            onChange={(e) => setSignupConfirmPassword(e.target.value)}
+                            className={`pl-10 ${signupErrors.confirmPassword ? "border-red-500" : ""}`}
+                            data-testid="input-signup-confirm-password"
+                          />
+                        </div>
+                        {signupErrors.confirmPassword && (
+                          <p className="text-sm text-red-500 mt-1">{signupErrors.confirmPassword}</p>
+                        )}
                       </div>
                       
                       <Button
                         type="submit"
                         className="w-full gradient-primary text-white font-semibold py-3 hover:opacity-90 transition-opacity"
-                        disabled={isSigningUp}
+                        disabled={signupMutation.isPending}
                         data-testid="button-signup-submit"
                       >
-                        {isSigningUp ? "Creating account..." : "Create Account"}
+                        {signupMutation.isPending ? "Creating account..." : "Create Account"}
                       </Button>
                     </form>
                   </TabsContent>
