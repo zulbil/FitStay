@@ -1325,9 +1325,9 @@ export class DatabaseStorage implements IStorage {
     const total = allCoaches.length;
     
     // Apply sorting
-    if (filters.sortBy === 'price_low') {
+    if (filters.sortBy === 'price-low') {
       allCoaches.sort((a, b) => a.pricePerHour - b.pricePerHour);
-    } else if (filters.sortBy === 'price_high') {
+    } else if (filters.sortBy === 'price-high') {
       allCoaches.sort((a, b) => b.pricePerHour - a.pricePerHour);
     } else if (filters.sortBy === 'rating') {
       allCoaches.sort((a, b) => {
@@ -1335,8 +1335,14 @@ export class DatabaseStorage implements IStorage {
         if (ratingDiff !== 0) return ratingDiff;
         return (b.ratingCount || 0) - (a.ratingCount || 0);
       });
-    } else if (filters.searchLat && filters.searchLng) {
-      // Sort by distance for location-based searches
+    } else if (filters.sortBy === 'newest') {
+      allCoaches.sort((a, b) => {
+        const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return dateB - dateA;
+      });
+    } else if (filters.sortBy === 'distance' && filters.searchLat && filters.searchLng) {
+      // Sort by distance when explicitly selected
       allCoaches.sort((a, b) => {
         if (!a.lat || !a.lng || !b.lat || !b.lng) return 0;
         
@@ -1345,8 +1351,18 @@ export class DatabaseStorage implements IStorage {
         
         return distanceA - distanceB;
       });
-    } else {
-      // Default sorting by rating
+    } else if (filters.searchLat && filters.searchLng && !filters.sortBy) {
+      // Default sort by distance for location-based searches when no sort is specified
+      allCoaches.sort((a, b) => {
+        if (!a.lat || !a.lng || !b.lat || !b.lng) return 0;
+        
+        const distanceA = this.calculateDistance(filters.searchLat!, filters.searchLng!, a.lat, a.lng);
+        const distanceB = this.calculateDistance(filters.searchLat!, filters.searchLng!, b.lat, b.lng);
+        
+        return distanceA - distanceB;
+      });
+    } else if (!filters.sortBy || filters.sortBy === 'recommended') {
+      // Default sorting by rating for recommended
       allCoaches.sort((a, b) => {
         const ratingDiff = (b.ratingAvg || 0) - (a.ratingAvg || 0);
         if (ratingDiff !== 0) return ratingDiff;
