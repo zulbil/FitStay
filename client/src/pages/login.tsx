@@ -99,7 +99,7 @@ export default function Login() {
       
       toast({
         title: "Account created successfully",
-        description: "Welcome to CoachBnB!",
+        description: "Welcome to CoachNearby!",
       });
       
       // Let useAuth redirect naturally via the useEffect
@@ -183,7 +183,7 @@ export default function Login() {
               <UserPlus className="h-10 w-10 text-white" />
             </div>
             <h1 className="text-4xl lg:text-5xl font-bold text-neutral-900 mb-4" data-testid="heading-login">
-              Welcome to <span className="text-gradient">CoachBnB</span>
+              Welcome to <span className="text-gradient">CoachNearby</span>
             </h1>
             <p className="text-xl text-neutral-600">
               Sign in to message coaches, apply as a coach, and manage your fitness journey

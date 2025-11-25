@@ -13,7 +13,7 @@ export default function Footer() {
                 <Dumbbell className="h-6 w-6 text-white" />
               </div>
               <h3 className="font-bold text-2xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                CoachBnB
+                CoachNearby
               </h3>
             </div>
             <p className="text-neutral-600 mb-8 leading-relaxed max-w-sm">
@@ -106,7 +106,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-neutral-300 mt-16 pt-10 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-neutral-600 text-sm font-medium">
-            © 2025 CoachBnB. All rights reserved.
+            © 2025 CoachNearby. All rights reserved.
           </p>
           <div className="flex flex-wrap gap-6 justify-center">
             <Link href="/privacy">

@@ -33,7 +33,7 @@ export function Navbar() {
                   <Dumbbell className="h-6 w-6 text-white" />
                 </div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-                  CoachBnB
+                  CoachNearby
                 </h1>
               </div>
             </Link>

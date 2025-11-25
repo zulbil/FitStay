@@ -11,7 +11,7 @@ export default function Privacy() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-neutral-800 mb-4">Information We Collect</h2>
             <p className="text-neutral-600 mb-4">
-              When you use CoachBnB, we may collect the following information:
+              When you use CoachNearby, we may collect the following information:
             </p>
             <ul className="list-disc pl-6 text-neutral-600 space-y-2">
               <li>Profile information from your social media accounts (name, email, profile picture)</li>
@@ -91,7 +91,7 @@ export default function Privacy() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-neutral-800 mb-4">Contact Us</h2>
             <p className="text-neutral-600">
-              If you have questions about this privacy policy, please contact us at privacy@coachbnb.com
+              If you have questions about this privacy policy, please contact us at privacy@coachnearby.com
             </p>
           </section>
         </div>

@@ -7,7 +7,7 @@ import { Footer } from "@/components/footer";
 
 export const metadata: Metadata = {
   title: "Fitness Blog - Tips, Workouts & Nutrition Advice",
-  description: "Expert fitness tips, workout guides, nutrition advice, and health insights from certified fitness professionals. Start your fitness journey with CoachBnB.",
+  description: "Expert fitness tips, workout guides, nutrition advice, and health insights from certified fitness professionals. Start your fitness journey with CoachNearby.",
   keywords: [
     "fitness blog",
     "workout tips",

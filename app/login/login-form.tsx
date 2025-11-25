@@ -315,7 +315,7 @@ export function LoginForm() {
       </div>
       
       <div className="mt-4 text-center">
-        <Link href="/" className="text-primary hover:underline text-sm">
+        <Link href="/search" className="text-primary hover:underline text-sm">
           Browse coaches without signing in
         </Link>
       </div>

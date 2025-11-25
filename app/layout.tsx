@@ -16,32 +16,32 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   title: {
-    default: "CoachBnB - Find Your Perfect Fitness Coach",
-    template: "%s | CoachBnB",
+    default: "CoachNearby - Find Your Perfect Fitness Coach",
+    template: "%s | CoachNearby",
   },
   description: "Connect with certified fitness professionals in your area. In-person or virtual training available. Browse 40+ verified coaches for weight loss, strength training, yoga, HIIT, and more.",
   keywords: ["fitness coach", "personal trainer", "online coaching", "weight loss", "strength training", "yoga", "HIIT", "fitness", "health"],
-  authors: [{ name: "CoachBnB" }],
-  creator: "CoachBnB",
+  authors: [{ name: "CoachNearby" }],
+  creator: "CoachNearby",
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://coachbnb.com",
-    siteName: "CoachBnB",
-    title: "CoachBnB - Find Your Perfect Fitness Coach",
+    url: "https://coachnearby.com",
+    siteName: "CoachNearby",
+    title: "CoachNearby - Find Your Perfect Fitness Coach",
     description: "Connect with certified fitness professionals in your area. In-person or virtual training available.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "CoachBnB - Find Your Perfect Fitness Coach",
+        alt: "CoachNearby - Find Your Perfect Fitness Coach",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "CoachBnB - Find Your Perfect Fitness Coach",
+    title: "CoachNearby - Find Your Perfect Fitness Coach",
     description: "Connect with certified fitness professionals in your area.",
     images: ["/og-image.png"],
   },

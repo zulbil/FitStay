@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: CoachPageProps): Promise<Meta
       coach.state,
     ],
     openGraph: {
-      title: `${coach.headline} | CoachBnB`,
+      title: `${coach.headline} | CoachNearby`,
       description: `Professional fitness coach specializing in ${specialtiesText}. Located in ${coach.city}, ${coach.state}.`,
       type: "profile",
       images: [
@@ -69,7 +69,7 @@ export async function generateMetadata({ params }: CoachPageProps): Promise<Meta
     },
     twitter: {
       card: "summary_large_image",
-      title: `${coach.headline} | CoachBnB`,
+      title: `${coach.headline} | CoachNearby`,
       description: `Professional fitness coach in ${coach.city}. ${specialtiesText}.`,
       images: [coach.photos[0] || "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b"],
     },

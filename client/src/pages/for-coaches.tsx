@@ -13,7 +13,7 @@ export default function ForCoaches() {
             Grow Your Fitness Business
           </h1>
           <p className="text-xl mb-8 max-w-2xl mx-auto">
-            Join thousands of fitness professionals who are building successful careers through CoachBnB. 
+            Join thousands of fitness professionals who are building successful careers through CoachNearby. 
             Connect with motivated clients and increase your income.
           </p>
           <Button 
@@ -29,7 +29,7 @@ export default function ForCoaches() {
       <section className="py-20">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-neutral-800 mb-6">Why Choose CoachBnB?</h2>
+            <h2 className="text-4xl font-bold text-neutral-800 mb-6">Why Choose CoachNearby?</h2>
             <p className="text-xl text-neutral-600 max-w-2xl mx-auto">
               We provide everything you need to build and scale your fitness coaching business
             </p>
@@ -206,7 +206,7 @@ export default function ForCoaches() {
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-4xl font-bold mb-6">Ready to Transform Your Fitness Career?</h2>
           <p className="text-xl text-neutral-300 mb-8 max-w-2xl mx-auto">
-            Join thousands of successful coaches who have built thriving businesses on CoachBnB. 
+            Join thousands of successful coaches who have built thriving businesses on CoachNearby. 
             Start your free profile today and begin connecting with your ideal clients.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

@@ -226,7 +226,7 @@ export default function Landing() {
       <section className="py-20 bg-white" data-testid="section-features">
         <div className="container-max">
           <div className="text-center mb-16">
-            <h2 className="font-bold text-neutral-900 mb-4">Why Choose CoachBnB?</h2>
+            <h2 className="font-bold text-neutral-900 mb-4">Why Choose CoachNearby?</h2>
             <p className="text-xl text-neutral-600 max-w-2xl mx-auto">The most trusted platform for connecting with certified fitness professionals</p>
           </div>
 

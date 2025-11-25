@@ -1,8 +1,10 @@
-# CoachBnB - Fitness Coach Directory Platform
+# CoachNearby - Fitness Coach Directory Platform
 
 ## Overview
 
-CoachBnB is a comprehensive full-stack fitness coaching marketplace that connects certified fitness professionals with clients seeking personal training services. Built as an Airbnb-style platform, it features a robust database of 40+ professional coaches with multiple photos, detailed bios, client testimonials, and location-based services. The platform includes OAuth authentication (Google, Facebook, Apple), Google Maps integration for location-based coach discovery, advanced filtering with AND logic for specialties, and both virtual and in-person training options.
+CoachNearby is a comprehensive full-stack fitness coaching marketplace that connects certified fitness professionals with clients seeking personal training services. Built as an Airbnb-style platform, it features a robust database of 40+ professional coaches with multiple photos, detailed bios, client testimonials, and location-based services. The platform includes OAuth authentication (Google, Facebook, Apple), Google Maps integration for location-based coach discovery, advanced filtering with AND logic for specialties, and both virtual and in-person training options.
+
+**Domain:** coachnearby.com
 
 ## User Preferences
 
@@ -59,37 +61,28 @@ Input validation is handled using Zod schemas integrated with Drizzle ORM for ty
 - **PostgreSQL**: Primary database system with full-text search and JSON support capabilities
 - **Connect PG Simple**: PostgreSQL session store for Express sessions (prepared for authentication)
 
-## Recent Updates (January 2025)
+## Recent Updates (November 2025)
 
-### Authentication & User Management (Updated November 2025)
-- Removed Replit authentication and replaced with industry-standard OAuth providers
-- Implemented OAuth 2.0 authentication with three providers: Google, Facebook, and Apple Sign In
-- Added traditional username/password authentication using passport-local strategy
+### Brand Update
+- Rebranded from CoachBnB to CoachNearby
+- Domain: coachnearby.com
+- Updated all branding across the platform including logos, meta tags, and content
+
+### Authentication & User Management
+- OAuth 2.0 authentication with three providers: Google, Facebook, and Apple Sign In
+- Traditional username/password authentication using passport-local strategy
 - Password security: bcrypt hashing with 10 salt rounds
 - Apple OAuth includes proper POST callback handling and first-time user data capture
-- Simplified authentication middleware by removing OIDC token refresh logic
-- Added user profiles with role-based access (USER/COACH)
+- User profiles with role-based access (USER/COACH)
 - Database schema includes username and password fields for local authentication
 - Login page features tabbed interface for OAuth (Quick Sign In) and traditional (Email & Password) authentication
   - Flattened UI structure with button toggles for Login/Signup to avoid nested Tabs accessibility issues
   - All elements fully testable with Playwright
 - Form validation using Zod schemas with client-side error display
-  - Username: minimum 3 characters
-  - Email: valid email format required
-  - Password: minimum 6 characters
-  - Password confirmation: must match password field
-  - Inline validation errors with red text and data-testid attributes
 - React Query mutations for signup/login with proper session management and cache invalidation
-  - Auto-login after successful signup
-  - Session-based authentication with HTTP-only cookies
-  - Cache invalidation on auth state changes
 - Navbar dropdown menu for authenticated users
-  - User name and email display
-  - Profile navigation option
-  - Explicit logout button with proper session termination
 - Created landing page for non-authenticated users
 - All login redirects now point to dedicated /login page
-- End-to-end tested: signup, login, logout, and validation flows all verified
 
 ### Location & Maps Integration
 - Integrated Google Maps JavaScript API with interactive markers
@@ -98,101 +91,37 @@ Input validation is handled using Zod schemas integrated with Drizzle ORM for ty
 - Added address and coordinate data for coaches with physical locations
 
 ### Complete Coach Database & Onboarding System
-- Expanded to 19 professional coaches with realistic profiles, multiple photos, and authentic testimonials
-- Implemented comprehensive coach onboarding system with application tracking and admin approval workflow
-- Created diverse coaching specialties including Weight Loss, Strength Training, Yoga, CrossFit, HIIT, Martial Arts, and more
-- Added pricing tiers ranging from $65-125/hour based on expertise level
-- Deployed full database with PostgreSQL integration and proper schema management
+- 19 professional coaches with realistic profiles, multiple photos, and authentic testimonials
+- Comprehensive coach onboarding system with application tracking and admin approval workflow
+- Diverse coaching specialties including Weight Loss, Strength Training, Yoga, CrossFit, HIIT, Martial Arts, and more
+- Pricing tiers ranging from $65-125/hour based on expertise level
+- Full database with PostgreSQL integration and proper schema management
 
 ### Advanced Filtering System
-- Changed specialty filtering from OR to AND logic (coaches must have ALL selected specialties)
+- Specialty filtering with AND logic (coaches must have ALL selected specialties)
 - Improved filter state management with proper cleanup
 - Enhanced search functionality with location-based filtering
-- Added virtual vs in-person session filtering
+- Virtual vs in-person session filtering
 
-### User Experience Updates (August 2025)
-- Users can browse coaches freely without authentication
-- Authentication required only for messaging coaches or applying as a coach
-- Complete two-sided marketplace functionality operational
-- Enhanced search functionality with comprehensive filter clearing capability
-- Pre-populated location search from homepage ZIP code selections
-
-### Location Data Enhancement (August 2025)
-- Updated all coaches with authentic US addresses across major cities
-- Added realistic coordinates for proper distance calculations
-- Covers major metropolitan areas: Houston, Austin, Boston, Seattle, Phoenix, Portland, Nashville, Atlanta, Chicago, Beverly Hills, San Francisco, Washington DC, Philadelphia, Minneapolis, Las Vegas
-- Reduced default search radius to 25 miles for more relevant local results
-- Enhanced ZIP code autocomplete with Google Places API integration
-
-### Design System Overhaul (November 2025)
-- Implemented energetic fitness brand design with vibrant color palette
+### Design System
+- Energetic fitness brand design with vibrant color palette
   - Primary: Coral/Orange (#FF6B4A) for energy and motivation
   - Secondary: Deep Teal (#00A896) for trust and professionalism
   - Accent: Amber (#FBBF24) for highlights and CTAs
-- Updated typography system for better hierarchy
-  - Headings: Poppins (600-800 weights) for bold, confident messaging
-  - Body: Inter (400-900 weights) for excellent readability
+- Typography system: Poppins for headings, Inter for body text
 - Enhanced component styling across the platform
-  - Landing page: Gradient hero section, trust badges, improved features layout
-  - Navigation bar: Gradient logo with dumbbell icon, backdrop blur glassmorphism, enhanced hover states
-  - Footer: Better organization, social media icons with transitions, improved link structure
-  - Coach cards: Aspect ratio image containers, floating badges, gradient overlays, enhanced hover effects
-- Added utility classes for consistent design language
-  - gradient-primary, gradient-secondary for branded backgrounds
-  - hover-lift for card elevation effects
-  - Enhanced shadow utilities for depth and hierarchy
-- Improved accessibility and code quality
-  - Fixed React warnings for nested anchor tags
-  - Proper semantic HTML structure
-  - Maintained WCAG color contrast standards
-  - Comprehensive data-testid coverage for testing
-- End-to-end testing confirmed all design enhancements working correctly
+- Utility classes: gradient-primary, gradient-secondary, hover-lift
 
-### Landing Page Redesign (November 2025)
-- Implemented hero section with background image carousel
-  - Embla carousel with autoplay (4-second intervals) using fixed Unsplash fitness stock photos
-  - Dark gradient overlay for text readability
-  - Manual navigation via carousel indicator dots
-  - Full-height responsive design (700-800px)
-- Enhanced hero content for maximum engagement
-  - "40+ Certified Fitness Professionals" trust badge
-  - Compelling headline: "Find Your Perfect Fitness Coach" with gradient text
-  - Prominent ZIP code search with Google Places autocomplete
-  - Three trust indicators with glassmorphism styling (Verified Credentials, Authentic Reviews, Secure Platform)
+### Landing Page
+- Hero section with background image carousel
 - Featured coaches section showcasing top-rated trainers
-  - Simple 3-column grid layout displaying exactly 3 coaches with rating >= 4.8 or new coaches
-  - All cards are equal size with consistent styling
-  - Each coach card wrapped in proper Link component for SEO and accessibility
-  - Hover effects with image zoom and button transitions
-  - Shows photo, rating badge (or "New"), location, specialties, and pricing
 - Testimonials section with client success stories
-  - Three featured testimonials with 5-star ratings
-  - Client photos, names, locations, and authentic quotes
-  - Responsive grid layout with hover effects
-- Enhanced social proof statistics section
-  - 10,000+ Sessions Completed
-  - 40+ Certified Coaches
-  - 4.9 Average Rating
-  - 100% Verified Credentials
-  - Icons and gradient background for visual impact
-- Removed authentication section to create dedicated login page
-- Implemented image preloading for smooth carousel transitions
-- Added comprehensive data-testid attributes for testing
-- Optimized loading states to prevent layout shift
+- Social proof statistics section
 
-### Dedicated Login Page (November 2025)
-- Created standalone login page at /login route
-- Full-height centered layout with gradient background and decorative patterns
-- Prominent "Welcome to CoachBnB" heading with gradient branding
-- SocialAuth component integration with three authentication options:
-  - Continue with Google
-  - Continue with Facebook  
-  - Continue with Replit
-- Clear description of login benefits (messaging coaches, applying as coach, managing fitness journey)
-- Links to Terms of Service and Privacy Policy
-- "Browse coaches without signing in" link for easy navigation back to landing
+### Dedicated Login Page
+- Standalone login page at /login route
+- Full-height centered layout with gradient background
+- SocialAuth component integration with three authentication options
 - Auto-redirect to home page if user is already authenticated
-- Updated navbar to link to /login instead of direct OAuth endpoint
-- Comprehensive data-testid coverage for testing
 
 The architecture is designed to be production-ready and scalable, with clear separation of concerns, comprehensive authentication, modern design system, and web development best practices throughout the stack.

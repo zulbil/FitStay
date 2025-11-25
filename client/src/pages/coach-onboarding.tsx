@@ -96,7 +96,7 @@ export default function CoachOnboarding() {
               </div>
               <h1 className="text-2xl font-bold text-gray-900 mb-2">Application Submitted</h1>
               <p className="text-gray-600 mb-6">
-                Thank you for your interest in becoming a CoachBnB coach. Your application is currently 
+                Thank you for your interest in becoming a CoachNearby coach. Your application is currently 
                 <Badge className="mx-1" variant={
                   existingApplication.status === "pending" ? "secondary" :
                   existingApplication.status === "approved" ? "default" : "destructive"
@@ -174,7 +174,7 @@ export default function CoachOnboarding() {
     <div className="min-h-screen bg-gray-50 py-16">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Become a CoachBnB Coach</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Become a CoachNearby Coach</h1>
           <p className="text-xl text-gray-600">Join our community of certified fitness professionals</p>
         </div>
 

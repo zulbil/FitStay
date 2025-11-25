@@ -11,7 +11,7 @@ export default function Terms() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-neutral-800 mb-4">Acceptance of Terms</h2>
             <p className="text-neutral-600 mb-4">
-              By accessing and using CoachBnB, you accept and agree to be bound by the terms 
+              By accessing and using CoachNearby, you accept and agree to be bound by the terms 
               and provision of this agreement.
             </p>
           </section>
@@ -19,7 +19,7 @@ export default function Terms() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-neutral-800 mb-4">Use License</h2>
             <p className="text-neutral-600 mb-4">
-              Permission is granted to temporarily use CoachBnB for personal, non-commercial 
+              Permission is granted to temporarily use CoachNearby for personal, non-commercial 
               transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:
             </p>
             <ul className="list-disc pl-6 text-neutral-600 space-y-2">
@@ -33,7 +33,7 @@ export default function Terms() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-neutral-800 mb-4">User Responsibilities</h2>
             <p className="text-neutral-600 mb-4">
-              As a user of CoachBnB, you agree to:
+              As a user of CoachNearby, you agree to:
             </p>
             <ul className="list-disc pl-6 text-neutral-600 space-y-2">
               <li>Provide accurate and current information</li>
@@ -47,7 +47,7 @@ export default function Terms() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-neutral-800 mb-4">Coach Services</h2>
             <p className="text-neutral-600 mb-4">
-              CoachBnB serves as a platform to connect clients with fitness coaches. We do not:
+              CoachNearby serves as a platform to connect clients with fitness coaches. We do not:
             </p>
             <ul className="list-disc pl-6 text-neutral-600 space-y-2">
               <li>Provide fitness coaching services directly</li>
@@ -60,7 +60,7 @@ export default function Terms() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-neutral-800 mb-4">Disclaimer</h2>
             <p className="text-neutral-600 mb-4">
-              The materials on CoachBnB are provided on an 'as is' basis. CoachBnB makes no warranties, 
+              The materials on CoachNearby are provided on an 'as is' basis. CoachNearby makes no warranties, 
               expressed or implied, and hereby disclaims and negates all other warranties including without 
               limitation, implied warranties or conditions of merchantability, fitness for a particular 
               purpose, or non-infringement of intellectual property or other violation of rights.
@@ -70,10 +70,10 @@ export default function Terms() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-neutral-800 mb-4">Limitations</h2>
             <p className="text-neutral-600 mb-4">
-              In no event shall CoachBnB or its suppliers be liable for any damages (including, without 
+              In no event shall CoachNearby or its suppliers be liable for any damages (including, without 
               limitation, damages for loss of data or profit, or due to business interruption) arising 
-              out of the use or inability to use the materials on CoachBnB, even if CoachBnB or a 
-              CoachBnB authorized representative has been notified orally or in writing of the possibility 
+              out of the use or inability to use the materials on CoachNearby, even if CoachNearby or a 
+              CoachNearby authorized representative has been notified orally or in writing of the possibility 
               of such damage.
             </p>
           </section>
@@ -81,9 +81,9 @@ export default function Terms() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-neutral-800 mb-4">Revisions</h2>
             <p className="text-neutral-600 mb-4">
-              The materials appearing on CoachBnB could include technical, typographical, or photographic 
-              errors. CoachBnB does not warrant that any of the materials on its website are accurate, 
-              complete, or current. CoachBnB may make changes to the materials contained on its website 
+              The materials appearing on CoachNearby could include technical, typographical, or photographic 
+              errors. CoachNearby does not warrant that any of the materials on its website are accurate, 
+              complete, or current. CoachNearby may make changes to the materials contained on its website 
               at any time without notice.
             </p>
           </section>
@@ -91,7 +91,7 @@ export default function Terms() {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-neutral-800 mb-4">Contact Information</h2>
             <p className="text-neutral-600">
-              If you have any questions about these Terms of Service, please contact us at terms@coachbnb.com
+              If you have any questions about these Terms of Service, please contact us at terms@coachnearby.com
             </p>
           </section>
         </div>

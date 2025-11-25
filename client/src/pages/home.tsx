@@ -104,7 +104,7 @@ export default function Home() {
       <section className="py-16 bg-neutral-800 text-white">
         <div className="max-w-container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-6">Become a CoachBnB Coach</h2>
+            <h2 className="text-4xl font-bold mb-6">Become a CoachNearby Coach</h2>
             <p className="text-xl text-neutral-300 max-w-2xl mx-auto">
               Join thousands of fitness professionals who are growing their business through our platform
             </p>

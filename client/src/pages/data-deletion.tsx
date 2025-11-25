@@ -69,7 +69,7 @@ export default function DataDeletion() {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-neutral-800 mb-4">Data Deletion Request</h1>
           <p className="text-lg text-neutral-600">
-            Request deletion of your personal data from CoachBnB
+            Request deletion of your personal data from CoachNearby
           </p>
         </div>
 
@@ -88,7 +88,7 @@ export default function DataDeletion() {
           <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <p className="text-sm text-yellow-800">
               <strong>Note:</strong> This action cannot be undone. Once your data is deleted, 
-              you will need to create a new account to use CoachBnB services again.
+              you will need to create a new account to use CoachNearby services again.
             </p>
           </div>
 
@@ -134,7 +134,7 @@ export default function DataDeletion() {
             <h3 className="text-lg font-medium text-neutral-800 mb-2">Need Help?</h3>
             <p className="text-neutral-600 text-sm">
               If you have questions about data deletion or need assistance, 
-              please contact our support team at privacy@coachbnb.com
+              please contact our support team at privacy@coachnearby.com
             </p>
           </div>
         </div>
